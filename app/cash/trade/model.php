@@ -75,13 +75,22 @@ class tradeModel extends model
             $endDate    = substr($date, 5, 1) == 4 ? substr($date, 0, 4) . '-12-31' : substr($date, 0, 4) . '-' . $endMonth . '-01';
         }
 
+	$userList = $this->loadModel('user')->getSubUsers($this->app->user);
+
         return $this->dao->select('*')->from(TABLE_TRADE)
             ->where('parent')->eq('')
+	    ->beginIF($userList != '')
+            ->andWhere()
+            ->markLeft(1)
+            ->where('createdBy')->in($userList)
+            ->orWhere('handlers')->in($userList)
+            ->markRight(1)
+            ->fi()
             ->beginIF($startDate and $endDate)->andWhere('date')->ge($startDate)->andWhere('date')->lt($endDate)->fi()
             ->beginIF($mode == 'in')->andWhere('type')->eq('in')
             ->beginIF($mode == 'out')->andWhere('type')->eq('out')
-            ->beginIF($mode == 'transfer')->andWhere('type')->like('transfer%')->orWhere('category')->eq('fee')
-            ->beginIF($mode == 'inveset')->andWhere('type')->in('inveset,redeem')->orWhere('category')->in('profit,loss')
+            ->beginIF($mode == 'transfer')->andWhere('type')->eq('transfer')
+            ->beginIF($mode == 'inveset')->andWhere('type')->eq('inveset')
             ->beginIF($mode == 'bysearch')->andWhere($tradeQuery)->fi()
             ->beginIF(!empty($denyCategories))->andWhere('category')->notin($denyCategories)
             ->beginIF(!$expensePriv)->andWhere('type')->ne('out')->fi()
