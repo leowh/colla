@@ -105,6 +105,18 @@ class block extends control
     }
 
     /**
+     * order block from crm
+    **/
+	
+    public function printOrderBlock()
+    { 
+	$this->app->loadLang('block', 'crm');
+        $this->app->loadLang('depositor', 'cash');
+        $this->processParams();
+        $this->view->depositors = $this->dao->select('*')->from(TABLE_DEPOSITOR)->where('type')->ne('cash')->andWhere('status')->eq('normal')->fetchAll('id');
+        $this->display();
+    }
+    /**
      * Print depositor block.
      * 
      * @access public

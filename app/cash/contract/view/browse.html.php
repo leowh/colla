@@ -16,7 +16,7 @@
 <div id='menuActions'>
   <?php if(commonModel::hasPriv('contract', 'export')):?>
   <div class='btn-group'>
-    <button data-toggle='dropdown' class='btn btn-primary dropdown-toggle' type='button'><?php echo $lang->exportIcon . $lang->export;?> <span class='caret'></span></button>
+    <button data-toggle='dropdown' class='btn btn-primary dropdown-toggle' type='button'><?php $lang->exportIcon . $lang->export;?> <span class='caret'></span></button>
     <ul id='exportActionMenu' class='dropdown-menu'>
       <li><?php commonModel::printLink('contract', 'export', "mode=all&orderBy={$orderBy}", $lang->exportAll, "class='iframe' data-width='700'");?></li>
       <li><?php commonModel::printLink('contract', 'export', "mode=thisPage&orderBy={$orderBy}", $lang->exportThisPage, "class='iframe' data-width='700'");?></li>
@@ -35,8 +35,6 @@
         <th>                <?php commonModel::printOrderLink('name',        $orderBy, $vars, $lang->contract->name);?></th>
         <th class='w-100px'><?php commonModel::printOrderLink('amount',      $orderBy, $vars, $lang->contract->amount);?></th>
         <th class='w-100px visible-lg'><?php commonModel::printOrderLink('createdDate', $orderBy, $vars, $lang->contract->createdDate);?></th>
-        <th class='w-100px'><?php commonModel::printOrderLink('begin',       $orderBy, $vars, $lang->contract->begin);?></th>
-        <th class='w-100px'><?php commonModel::printOrderLink('end',         $orderBy, $vars, $lang->contract->end);?></th>
         <th class='w-80px'> <?php commonModel::printOrderLink('return',      $orderBy, $vars, $lang->contract->return);?></th>
         <th class='w-80px'> <?php commonModel::printOrderLink('delivery',    $orderBy, $vars, $lang->contract->delivery);?></th>
         <th class='w-60px'> <?php commonModel::printOrderLink('status',      $orderBy, $vars, $lang->contract->status);?></th>
@@ -51,8 +49,6 @@
         <td class='text-left' title='<?php echo $contract->name;?>'><?php echo $contract->name;?></td>
         <td class='text-right'><?php echo zget($currencySign, $contract->currency, '') . formatMoney($contract->amount);?></td>
         <td class='visible-lg'><?php echo substr($contract->createdDate, 0, 10);?></td>
-        <td><?php echo substr($contract->begin, 0, 10);?></td>
-        <td><?php echo substr($contract->end, 0, 10);?></td>
         <td><?php echo $lang->contract->returnList[$contract->return];?></td>
         <td><?php echo $lang->contract->deliveryList[$contract->delivery];?></td>
         <td class='<?php echo "contract-{$contract->status}";?>'><?php echo $lang->contract->statusList[$contract->status];?></td>

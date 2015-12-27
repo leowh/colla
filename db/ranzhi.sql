@@ -82,6 +82,7 @@ CREATE TABLE `crm_contract` (
   `end` date NOT NULL,
   `delivery` char(30) NOT NULL,
   `return` char(30) NOT NULL,
+  `type`   char(30) NOT NULL,
   `currency` varchar(20) NOT NULL,
   `status` enum('normal', 'closed', 'canceled') NOT NULL DEFAULT 'normal',
   `contact` mediumint(8) unsigned NOT NULL,

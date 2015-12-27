@@ -1,0 +1,252 @@
+diff --git a/.gitignore b/.gitignore
+index 6dd3335..44fa850 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,2 +1,3 @@
+ tmp/
+ config/
++*.swp*
+diff --git a/app/cash/block/control.php b/app/cash/block/control.php
+index 42666da..964533e 100644
+--- a/app/cash/block/control.php
++++ b/app/cash/block/control.php
+@@ -105,6 +105,18 @@ class block extends control
+     }
+ 
+     /**
++     * order block from crm
++    **/
++	
++    public function printOrderBlock()
++    { 
++	$this->app->loadLang('block', 'crm');
++        $this->app->loadLang('depositor', 'cash');
++        $this->processParams();
++        $this->view->depositors = $this->dao->select('*')->from(TABLE_DEPOSITOR)->where('type')->ne('cash')->andWhere('status')->eq('normal')->fetchAll('id');
++        $this->display();
++    }
++    /**
+      * Print depositor block.
+      * 
+      * @access public
+diff --git a/app/cash/block/lang/zh-cn.php b/app/cash/block/lang/zh-cn.php
+index b0b303d..c557d00 100644
+--- a/app/cash/block/lang/zh-cn.php
++++ b/app/cash/block/lang/zh-cn.php
+@@ -17,11 +17,7 @@ $lang->block->orderBy   = '排序';
+ 
+ $lang->block->availableBlocks = new stdclass();
+ $lang->block->availableBlocks->depositor = '付款账号';
+-$lang->block->availableBlocks->trade     = '账目';
+ $lang->block->availableBlocks->provider  = '供应商';
+ 
+-$this->lang->block->orderByList->trade['id_asc']  = 'ID 递增';
+-$this->lang->block->orderByList->trade['id_desc'] = 'ID 递减';
+-
+ $this->lang->block->orderByList->provider['id_asc']  = 'ID 递增';
+ $this->lang->block->orderByList->provider['id_desc'] = 'ID 递减';
+diff --git a/app/cash/common/lang/zh-cn.php b/app/cash/common/lang/zh-cn.php
+index e962656..9224154 100755
+--- a/app/cash/common/lang/zh-cn.php
++++ b/app/cash/common/lang/zh-cn.php
+@@ -17,6 +17,7 @@ $lang->menu->cash->dashboard = '首页|dashboard|index|';
+ $lang->menu->cash->trade     = '记账|trade|browse|';
+ $lang->menu->cash->check     = '对账|depositor|check|';
+ $lang->menu->cash->depositor = '账户|depositor|browse|';
++$lang->menu->cash->contract  = '采购|contract|browse|mode=unfinished';
+ $lang->menu->cash->provider  = '供应商|provider|browse|';
+ //$lang->menu->cash->contact   = '联系人|contact|browse|';
+ $lang->menu->cash->setting   = '设置|tree|browse|type=in|';
+@@ -34,6 +35,26 @@ $lang->trade->menu->transfer = array('link' => '转账|trade|browse|mode=transfe
+ $lang->trade->menu->inveset  = array('link' => '投资|trade|browse|mode=inveset&orderBy=depositor');
+ $lang->trade->menu->report   = array('link' => '报表|trade|report|');
+ 
++/* Menu of purchase module. */
++$lang->purchase = new stdclass();
++$lang->purchase->menu = new stdclass();
++$lang->purchase->menu->browse       = '所有采购|purchase|browse|mode=all';
++$lang->purchase->menu->unfinished   = '未完成|purchase|browse|mode=unfinished';
++$lang->purchase->menu->unreceived   = '支付中|purchase|browse|mode=unreceived';
++$lang->purchase->menu->undeliveried = '交付中|purchase|browse|mode=undeliveried';
++$lang->purchase->menu->finished     = '已完成|purchase|browse|mode=finished';
++$lang->purchase->menu->report       = '报表|report|browse|module=purchase';
++
++/* Menu of purchase module. */
++$lang->contract = new stdclass();
++$lang->contract->menu = new stdclass();
++$lang->contract->menu->browse       = '所有采购|purchase|browse|mode=all';
++$lang->contract->menu->unfinished   = '未完成|purchase|browse|mode=unfinished';
++$lang->contract->menu->unreceived   = '支付中|purchase|browse|mode=unreceived';
++$lang->contract->menu->undeliveried = '交付中|purchase|browse|mode=undeliveried';
++$lang->contract->menu->finished     = '已完成|purchase|browse|mode=finished';
++$lang->contract->menu->report       = '报表|report|browse|module=purchase';
++
+ /* Menu of trade module. */
+ $lang->provider = new stdclass();
+ $lang->provider->menu = new stdclass();
+diff --git a/app/cash/trade/model.php b/app/cash/trade/model.php
+index 7d4e9fc..fabc9fe 100644
+--- a/app/cash/trade/model.php
++++ b/app/cash/trade/model.php
+@@ -186,26 +186,27 @@ class tradeModel extends model
+     public function create($type)
+     {
+         $now = helper::now();
+-        if($type == 'in') $_POST['objectType'] = array('contract');
+-
+-        $trade = fixer::input('post')
+-            ->add('type', $type)
+-            ->add('createdBy', $this->app->user->account)
+-            ->add('createdDate', $now)
+-            ->add('editedBy', $this->app->user->account)
+-            ->add('editedDate', $now)
+-            ->add('handlers', trim(join(',', $this->post->handlers), ','))
+-            ->setDefault('contract', 0)
+-            ->setIf($this->post->trader == '', 'trader', 0)
+-            ->setIf($this->post->createTrader, 'trader', 0)
+-            ->setIf($type == 'in', 'order', 0)
+-            ->setIf(!$this->post->objectType or !in_array('order', $this->post->objectType), 'order', 0)
+-            ->setIf(!$this->post->objectType or !in_array('contract', $this->post->objectType), 'contract', 0)
+-            ->remove('objectType')
+-            ->striptags('desc')
+-            ->get();
+-
+-        $depositor = $this->loadModel('depositor')->getByID($trade->depositor);
++        	
++	if($type == 'in') $_POST['objectType'] = array('contract');
++
++	$trade = fixer::input('post')
++            	->add('type', $type)
++            	->add('createdBy', $this->app->user->account)
++            	->add('createdDate', $now)
++            	->add('editedBy', $this->app->user->account)
++            	->add('editedDate', $now)
++            	->add('handlers', trim(join(',', $this->post->handlers), ','))
++            	->setDefault('contract', 0)
++            	->setIf($this->post->trader == '', 'trader', 0)
++            	->setIf($this->post->createTrader, 'trader', 0)
++            	->setIf($type == 'in', 'order', 0)
++            	->setIf(!$this->post->objectType or !in_array('order', $this->post->objectType), 'order', 0)
++            	->setIf(!$this->post->objectType or !in_array('contract', $this->post->objectType), 'contract', 0)
++            	->remove('objectType')
++            	->striptags('desc')
++            	->get();
++        
++	$depositor = $this->loadModel('depositor')->getByID($this->post->depositor);
+         if(!empty($depositor)) $trade->currency = $depositor->currency;
+ 
+         $this->dao->insert(TABLE_TRADE)
+diff --git a/app/crm/contract/.model.php.swp b/app/crm/contract/.model.php.swp
+deleted file mode 100644
+index c2b1de3..0000000
+Binary files a/app/crm/contract/.model.php.swp and /dev/null differ
+diff --git a/app/crm/contract/model.php b/app/crm/contract/model.php
+index 698f226..8218d0a 100644
+--- a/app/crm/contract/model.php
++++ b/app/crm/contract/model.php
+@@ -45,7 +45,7 @@ class contractModel extends model
+      * @access public
+      * @return array
+      */
+-    public function getList($customer = 0, $mode = 'all', $owner = 'all', $orderBy = 'id_desc', $pager = null)
++    public function getList($customer = 0, $mode = 'all', $type = 'sell', $orderBy = 'id_desc', $pager = null)
+     {
+         /* process search condition. */
+         if($this->session->contractQuery == false) $this->session->set('contractQuery', ' 1 = 1');
+@@ -57,6 +57,7 @@ class contractModel extends model
+ 
+         return $this->dao->select('*')->from(TABLE_CONTRACT)
+             ->where('deleted')->eq(0)
++	    ->andWhere('type')->ne('purchase')
+             ->beginIF($userList != '')
+             ->andWhere()
+             ->markLeft(1)
+@@ -170,6 +171,7 @@ class contractModel extends model
+             ->add('status', 'normal')
+             ->add('delivery', 'wait')
+             ->add('return', 'wait')
++            ->add('type', 'sell')
+             ->setDefault('order', array())
+             ->setDefault('real', array())
+             ->setDefault('begin', '0000-00-00')
+@@ -180,6 +182,9 @@ class contractModel extends model
+             ->get();
+ 
+         $contract = $this->loadModel('file')->processEditor($contract, $this->config->contract->editor->create['id']);
++
++        $contract->code = 'LZYIN-C' . strval( $contract->customer) . '-' . date("Ymdhi");
++
+         $this->dao->insert(TABLE_CONTRACT)->data($contract, 'order,uid,files,labels,real')
+             ->autoCheck()
+             ->batchCheck($this->config->contract->require->create, 'notempty')
+diff --git a/app/crm/contract/view/browse.html.php b/app/crm/contract/view/browse.html.php
+index 28b33f3..32f1bbb 100644
+--- a/app/crm/contract/view/browse.html.php
++++ b/app/crm/contract/view/browse.html.php
+@@ -31,7 +31,7 @@
+       <tr class='text-center'>
+         <?php $vars = "mode={$mode}&orderBy=%s&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}&pageID={$pager->pageID}";?>
+         <th class='w-60px'> <?php commonModel::printOrderLink('id',          $orderBy, $vars, $lang->contract->id);?></th>
+-        <th class='w-100px'> <?php commonModel::printOrderLink('code',       $orderBy, $vars, $lang->contract->code);?></th>
++        <th class='w-300px'> <?php commonModel::printOrderLink('code',       $orderBy, $vars, $lang->contract->code);?></th>
+         <th>                <?php commonModel::printOrderLink('name',        $orderBy, $vars, $lang->contract->name);?></th>
+         <th class='w-100px'><?php commonModel::printOrderLink('amount',      $orderBy, $vars, $lang->contract->amount);?></th>
+         <th class='w-100px visible-lg'><?php commonModel::printOrderLink('createdDate', $orderBy, $vars, $lang->contract->createdDate);?></th>
+diff --git a/app/crm/contract/view/create.html.php b/app/crm/contract/view/create.html.php
+index dd896e2..7d2aaae 100644
+--- a/app/crm/contract/view/create.html.php
++++ b/app/crm/contract/view/create.html.php
+@@ -63,10 +63,6 @@
+           <td class='w-p40'><?php echo html::input('name', '', "class='form-control'");?></td><td></td>
+         </tr>
+         <tr>
+-          <th><?php echo $lang->contract->code;?></th>
+-          <td><?php echo html::input('code', '', "class='form-control'");?></td><td></td>
+-        </tr>
+-        <tr>
+           <th><?php echo $lang->contract->amount;?></th>
+           <td>
+             <div class='row'>
+@@ -113,6 +109,9 @@
+           <th></th>
+           <td><?php echo html::submitButton() . '&nbsp;&nbsp;' . html::backButton();?></td>
+         </tr>
++	<tr><th></th>
++	<td> 系统自动生成合同编号</td>
++	</tr>
+       </table>
+     </form>
+   </div>
+diff --git a/db/ranzhi.sql b/db/ranzhi.sql
+index 5a39408..2a99708 100644
+--- a/db/ranzhi.sql
++++ b/db/ranzhi.sql
+@@ -82,6 +82,7 @@ CREATE TABLE `crm_contract` (
+   `end` date NOT NULL,
+   `delivery` char(30) NOT NULL,
+   `return` char(30) NOT NULL,
++  `type`   char(30) NOT NULL,
+   `currency` varchar(20) NOT NULL,
+   `status` enum('normal', 'closed', 'canceled') NOT NULL DEFAULT 'normal',
+   `contact` mediumint(8) unsigned NOT NULL,
+diff --git a/framework/control.class.php b/framework/control.class.php
+index fe0b90e..469257f 100755
+--- a/framework/control.class.php
++++ b/framework/control.class.php
+@@ -315,6 +315,7 @@ class control
+         $extHookFiles = glob($viewExtPath . $this->viewPrefix . $methodName . ".*.{$viewType}.hook.php");
+ 
+         $viewFile = file_exists($extViewFile) ? $extViewFile : $mainViewFile;
++
+         if(!is_file($viewFile)) $this->app->triggerError("the view file $viewFile not found", __FILE__, __LINE__, $exit = true);
+         if(!empty($extHookFiles)) return array('viewFile' => $viewFile, 'hookFiles' => $extHookFiles);
+         return $viewFile;
+@@ -596,7 +597,7 @@ class control
+      * @return  void
+      */
+     public function display($moduleName = '', $methodName = '')
+-    {
++    {	
+         if(empty($this->output)) $this->parse($moduleName, $methodName);
+         echo $this->output;
+     }

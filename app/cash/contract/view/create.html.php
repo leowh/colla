@@ -26,38 +26,6 @@
           <th><?php echo $lang->contract->customer;?></th>
           <td><?php echo html::select('customer', $customers, isset($customer) ? $customer : '', "class='form-control chosen' onchange='getOrder(this.value)'");?></td>
         </tr>
-        <?php if(isset($currentOrder)):?>
-        <tr>
-          <th><?php echo $lang->contract->order;?></th>
-          <td>
-            <div class='form-group'>
-              <span class='col-sm-7'>
-                <select name='order[]' class='select-order form-control'>
-                  <option value=''></option>
-                  <?php foreach($orders as $order):?>
-                  <?php $selected = $orderID == $order->id ? 'selected' : ''; ?>
-                  <option value="<?php echo $order->id;?>" <?php echo $selected;?>  data-real="<?php echo $order->plan;?>" data-currency="<?php echo $order->currency?>"><?php echo $order->title;?></option>
-                  <?php endforeach;?>
-                </select>
-              </span>
-              <span class='col-sm-4'>
-                <div class='input-group'>
-                  <div class='input-group-addon order-currency'>
-                    <?php echo zget($currencySign, $currentOrder->currency, '');?> 
-                  </div>
-                  <?php echo html::input('real[]', $currentOrder->plan, "class='order-real form-control' placeholder='{$this->lang->contract->placeholder->real}'");?>
-                </div>
-              </span>
-              <span class='col-sm-1' style='margin-top: 8px;'><?php echo html::a('javascript:;', "<i class='icon-plus'></i>", "class='plus'") . html::a('javascript:;', "<i class='icon-remove'></i>", "class='minus'");?></span>
-            </div>
-          </td>
-        </tr>
-        <?php endif;?>
-        <tr id='orderTR' class='hide'>
-          <th><?php echo $lang->contract->order;?></th>
-          <td id='orderTD'></td>
-        </tr>
-        <tr class='hide' id='tmpData'><td></td></tr>
         <tr>
           <th class='w-80px'><?php echo $lang->contract->name;?></th>
           <td class='w-p40'><?php echo html::input('name', '', "class='form-control'");?></td><td></td>
@@ -70,10 +38,6 @@
               <div class='col-sm-9'><?php echo html::input('amount', isset($currentOrder) ? $currentOrder->plan : '', "class='form-control'");?></div>
             </div>
           </td>
-        </tr>
-        <tr>
-          <th><?php echo $lang->contract->contact;?></th>
-          <td class='contactTD'><select name='contact' id='contact' class='form-control'></select></td>
         </tr>
         <tr>
           <th><?php echo $lang->contract->signedBy;?></th>
@@ -110,7 +74,7 @@
           <td><?php echo html::submitButton() . '&nbsp;&nbsp;' . html::backButton();?></td>
         </tr>
 	<tr><th></th>
-	<td> 系统自动生成合同编号</td>
+          <td><?php echo "系统自动生成采购编号";?></td>
 	</tr>
       </table>
     </form>

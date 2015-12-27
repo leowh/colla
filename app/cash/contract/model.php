@@ -45,19 +45,19 @@ class contractModel extends model
      * @access public
      * @return array
      */
-    public function getList($customer = 0, $mode = 'all', $type = 'sell', $orderBy = 'id_desc', $pager = null)
+    public function getList($customer = 0, $mode = 'all', $type = 'purchase', $orderBy = 'id_desc', $pager = null)
     {
         /* process search condition. */
         if($this->session->contractQuery == false) $this->session->set('contractQuery', ' 1 = 1');
         $contractQuery = $this->loadModel('search', 'sys')->replaceDynamic($this->session->contractQuery);
 
         if(strpos($orderBy, 'id') === false) $orderBy .= ', id_desc';
-
+	
         $userList = $this->loadModel('user')->getSubUsers($this->app->user);
 
         return $this->dao->select('*')->from(TABLE_CONTRACT)
             ->where('deleted')->eq(0)
-	    ->andWhere('type')->ne('purchase')
+            ->andWhere('type')->eq($type)
             ->beginIF($userList != '')
             ->andWhere()
             ->markLeft(1)
@@ -72,7 +72,6 @@ class contractModel extends model
             ->orWhere('handlers')->in($userList)
             ->markRight(1)
             ->fi()
-            ->beginIF($customer)->andWhere('customer')->eq($customer)->fi()
             ->beginIF($mode == 'unfinished')->andWhere('`status`')->eq('normal')->fi()
             ->beginIF($mode == 'unreceived')->andWhere('`return`')->ne('done')->andWhere('`status`')->ne('canceled')->fi()
             ->beginIF($mode == 'undeliveried')->andWhere('`delivery`')->ne('done')->andWhere('`status`')->ne('canceled')->fi()
@@ -171,7 +170,7 @@ class contractModel extends model
             ->add('status', 'normal')
             ->add('delivery', 'wait')
             ->add('return', 'wait')
-            ->add('type', 'sell')
+            ->add('type', 'purchase')
             ->setDefault('order', array())
             ->setDefault('real', array())
             ->setDefault('begin', '0000-00-00')
@@ -182,8 +181,7 @@ class contractModel extends model
             ->get();
 
         $contract = $this->loadModel('file')->processEditor($contract, $this->config->contract->editor->create['id']);
-
-        $contract->code = 'LZYIN-C' . strval( $contract->customer) . '-' . date("Ymdhi");
+	$contract->code = 'LZYBUY-P' . strval( $contract->customer) . '-' . date("Ymdhi");
 
         $this->dao->insert(TABLE_CONTRACT)->data($contract, 'order,uid,files,labels,real')
             ->autoCheck()
@@ -277,40 +275,6 @@ class contractModel extends model
         
         if(!dao::isError())
         {
-            if($data->order)
-            {
-                $oldOrders = $this->loadModel('order')->getByIdList($data->order);
-                $real = array();
-                foreach($data->order as $key => $orderID) $real[$key] = $oldOrders[$orderID]->real;
-
-                if($contract->order != $data->order || $real != $data->real)
-                {
-                    $this->dao->delete()->from(TABLE_CONTRACTORDER)->where('contract')->eq($contractID)->exec();
-                    foreach($data->order as $key => $orderID)
-                    {
-                        $oldOrder = $this->loadModel('order')->getByID($orderID);
-
-                        $contractOrder = new stdclass();
-                        $contractOrder->contract = $contractID;
-                        $contractOrder->order    = $orderID;
-                        $this->dao->insert(TABLE_CONTRACTORDER)->data($contractOrder)->exec();
-
-                        $order = new stdclass();
-                        $order->real       = $data->real[$key];
-                        $order->signedBy   = $data->signedBy;
-                        $order->signedDate = $data->signedDate;
-
-                        $this->dao->update(TABLE_ORDER)->data($order)->where('id')->eq($orderID)->exec();
-
-                        if(dao::isError()) return false;
-
-                        $changes  = commonModel::createChanges($oldOrder, $order);
-                        $actionID = $this->loadModel('action')->create('order', $orderID, 'Edited');
-                        $this->action->logHistory($actionID, $changes);
-                    }
-                }
-            }
-
             if($contract->status == 'canceled' and $data->status == 'normal')
             {
                 foreach($data->order as $key => $orderID)
@@ -489,11 +453,11 @@ class contractModel extends model
             ->add('contract', $contractID)
             ->setDefault('returnedBy', $this->app->user->account)
             ->setDefault('returnedDate', $now)
-            ->remove('finish,handlers')
+            ->remove('finish,handlers,depositor')
             ->get();
-
-        $this->dao->insert(TABLE_PLAN)
-            ->data($data, $skip = 'uid, comment')
+        
+	$this->dao->insert(TABLE_PLAN)
+            ->data($data, $skip = 'uid, comment, depositor')
             ->autoCheck()
             ->batchCheck($this->config->contract->require->receive, 'notempty')
             ->exec();
@@ -701,7 +665,7 @@ class contractModel extends model
 
         if($contract->return != 'done' and $contract->status == 'normal' and $canReceive)
         {
-            $menu .= html::a(helper::createLink('crm.contract', 'receive',  "contract=$contract->id"), $this->lang->contract->return, "data-toggle='modal' class='$class'");
+            $menu .= html::a(helper::createLink('cash.contract', 'receive',  "contract=$contract->id"), $this->lang->contract->return, "data-toggle='modal' class='$class'");
         }
         else
         {
@@ -710,7 +674,7 @@ class contractModel extends model
 
         if($contract->delivery != 'done' and $contract->status == 'normal' and $canDelivery)
         {
-            $menu .= html::a(helper::createLink('crm.contract', 'delivery', "contract=$contract->id"), $this->lang->contract->delivery, "data-toggle='modal' class='$class'");
+            $menu .= html::a(helper::createLink('cash.contract', 'delivery', "contract=$contract->id"), $this->lang->contract->delivery, "data-toggle='modal' class='$class'");
         }
         else
         {
@@ -721,21 +685,21 @@ class contractModel extends model
 
         if($contract->status == 'normal' and $contract->return == 'done' and $contract->delivery == 'done' and $canFinish)
         {
-            $menu .= html::a(helper::createLink('crm.contract', 'finish', "contract=$contract->id"), $this->lang->finish, "data-toggle='modal' class='$class'");
+            $menu .= html::a(helper::createLink('cash.contract', 'finish', "contract=$contract->id"), $this->lang->finish, "data-toggle='modal' class='$class'");
         }
         else
         {
             $menu .= "<a href='###' disabled='disabled' class='disabled $class'>" . $this->lang->finish . '</a> ';
         }
 
-        if($canEdit) $menu .= html::a(helper::createLink('crm.contract', 'edit', "contract=$contract->id"), $this->lang->edit, "class='$class'");
+        if($canEdit) $menu .= html::a(helper::createLink('cash.contract', 'edit', "contract=$contract->id"), $this->lang->edit, "class='$class'");
 
         if($type == 'view')
         {
             $menu .= "</div><div class='btn-group'>";
             if($contract->status == 'normal' and !($contract->return == 'done' and $contract->delivery == 'done') and $canCancel)
             {
-                $menu .= html::a(helper::createLink('crm.contract', 'cancel', "contract=$contract->id"), $this->lang->cancel, "data-toggle='modal' class='$class'");
+                $menu .= html::a(helper::createLink('cash.contract', 'cancel', "contract=$contract->id"), $this->lang->cancel, "data-toggle='modal' class='$class'");
             }
             else
             {
@@ -744,7 +708,7 @@ class contractModel extends model
 
             if($contract->status == 'canceled' or ($contract->status == 'normal' and !($contract->return == 'done' and $contract->delivery == 'done')) and $canDelete)
             {
-                $menu .= html::a(helper::createLink('crm.contract', 'delete', "contract=$contract->id"), $this->lang->delete, "class='deleter $class'");
+                $menu .= html::a(helper::createLink('cash.contract', 'delete', "contract=$contract->id"), $this->lang->delete, "class='deleter $class'");
             }
             else
             {
@@ -758,7 +722,7 @@ class contractModel extends model
 
             if($contract->status == 'normal' and !($contract->return == 'done' and $contract->delivery == 'done') and $canCancel)
             {
-                $menu .= "<li>" . html::a(helper::createLink('crm.contract', 'cancel', "contract=$contract->id"), $this->lang->cancel, "data-toggle='modal' class='$class'") . "</li>";
+                $menu .= "<li>" . html::a(helper::createLink('cash.contract', 'cancel', "contract=$contract->id"), $this->lang->cancel, "data-toggle='modal' class='$class'") . "</li>";
             }
             else
             {
@@ -767,7 +731,7 @@ class contractModel extends model
 
             if($contract->status == 'canceled' or ($contract->status == 'normal' and !($contract->return == 'done' and $contract->delivery == 'done')) and $canDelete)
             {
-                $menu .= "<li>" . html::a(helper::createLink('crm.contract', 'delete', "contract=$contract->id"), $this->lang->delete, "class='reloadDeleter $class'") . "</li>";
+                $menu .= "<li>" . html::a(helper::createLink('cash.contract', 'delete', "contract=$contract->id"), $this->lang->delete, "class='reloadDeleter $class'") . "</li>";
             }
             else
             {

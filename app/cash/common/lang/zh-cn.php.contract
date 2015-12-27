@@ -35,15 +35,15 @@ $lang->trade->menu->transfer = array('link' => '转账|trade|browse|mode=transfe
 $lang->trade->menu->inveset  = array('link' => '投资|trade|browse|mode=inveset&orderBy=depositor');
 $lang->trade->menu->report   = array('link' => '报表|trade|report|');
 
-/* Menu of purchase module. */
+/* Menu of contract module. */
 $lang->contract = new stdclass();
 $lang->contract->menu = new stdclass();
-$lang->contract->menu->browse       = '所有采购|purchase|browse|mode=all';
-$lang->contract->menu->unfinished   = '未完成|purchase|browse|mode=unfinished';
-$lang->contract->menu->unreceived   = '支付中|purchase|browse|mode=unreceived';
-$lang->contract->menu->undeliveried = '交付中|purchase|browse|mode=undeliveried';
-$lang->contract->menu->finished     = '已完成|purchase|browse|mode=finished';
-$lang->contract->menu->report       = '报表|report|browse|module=purchase';
+$lang->contract->menu->browse       = '所有采购|contract|browse|mode=all';
+$lang->contract->menu->unfinished   = '未完成|contract|browse|mode=unfinished';
+$lang->contract->menu->unreceived   = '支付中|contract|browse|mode=unreceived';
+$lang->contract->menu->undeliveried = '交付中|contract|browse|mode=undeliveried';
+$lang->contract->menu->finished     = '已完成|contract|browse|mode=finished';
+$lang->contract->menu->report       = '报表|report|browse|module=contract';
 
 /* Menu of trade module. */
 $lang->provider = new stdclass();

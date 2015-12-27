@@ -186,26 +186,27 @@ class tradeModel extends model
     public function create($type)
     {
         $now = helper::now();
-        if($type == 'in') $_POST['objectType'] = array('contract');
+        	
+	if($type == 'in') $_POST['objectType'] = array('contract');
 
-        $trade = fixer::input('post')
-            ->add('type', $type)
-            ->add('createdBy', $this->app->user->account)
-            ->add('createdDate', $now)
-            ->add('editedBy', $this->app->user->account)
-            ->add('editedDate', $now)
-            ->add('handlers', trim(join(',', $this->post->handlers), ','))
-            ->setDefault('contract', 0)
-            ->setIf($this->post->trader == '', 'trader', 0)
-            ->setIf($this->post->createTrader, 'trader', 0)
-            ->setIf($type == 'in', 'order', 0)
-            ->setIf(!$this->post->objectType or !in_array('order', $this->post->objectType), 'order', 0)
-            ->setIf(!$this->post->objectType or !in_array('contract', $this->post->objectType), 'contract', 0)
-            ->remove('objectType')
-            ->striptags('desc')
-            ->get();
-
-        $depositor = $this->loadModel('depositor')->getByID($trade->depositor);
+	$trade = fixer::input('post')
+            	->add('type', $type)
+            	->add('createdBy', $this->app->user->account)
+            	->add('createdDate', $now)
+            	->add('editedBy', $this->app->user->account)
+            	->add('editedDate', $now)
+            	->add('handlers', trim(join(',', $this->post->handlers), ','))
+            	->setDefault('contract', 0)
+            	->setIf($this->post->trader == '', 'trader', 0)
+            	->setIf($this->post->createTrader, 'trader', 0)
+            	->setIf($type == 'in', 'order', 0)
+            	->setIf(!$this->post->objectType or !in_array('order', $this->post->objectType), 'order', 0)
+            	->setIf(!$this->post->objectType or !in_array('contract', $this->post->objectType), 'contract', 0)
+            	->remove('objectType')
+            	->striptags('desc')
+            	->get();
+        
+	$depositor = $this->loadModel('depositor')->getByID($this->post->depositor);
         if(!empty($depositor)) $trade->currency = $depositor->currency;
 
         $this->dao->insert(TABLE_TRADE)
