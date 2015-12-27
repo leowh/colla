@@ -53,20 +53,22 @@ class contractModel extends model
 
         if(strpos($orderBy, 'id') === false) $orderBy .= ', id_desc';
 
+        $userList = $this->loadModel('user')->getSubUsers($this->app->user);
+
         return $this->dao->select('*')->from(TABLE_CONTRACT)
             ->where('deleted')->eq(0)
-            ->beginIF($owner == 'my' and strpos('returnedBy,deliveredBy', $mode) === false)
+            ->beginIF($userList != '')
             ->andWhere()
             ->markLeft(1)
-            ->where('createdBy')->eq($this->app->user->account)
-            ->orWhere('editedBy')->eq($this->app->user->account)
-            ->orWhere('signedBy')->eq($this->app->user->account)
-            ->orWhere('returnedBy')->eq($this->app->user->account)
-            ->orWhere('deliveredBy')->eq($this->app->user->account)
-            ->orWhere('finishedBy')->eq($this->app->user->account)
-            ->orWhere('canceledBy')->eq($this->app->user->account)
-            ->orWhere('contactedBy')->eq($this->app->user->account)
-            ->orWhere('handlers')->like("%{$this->app->user->account}%")
+	    ->where('createdBy')->in($userList)
+            ->orWhere('editedBy')->in($userList)
+            ->orWhere('signedBy')->in($userList)
+            ->orWhere('returnedBy')->in($userList)
+            ->orWhere('deliveredBy')->in($userList)
+            ->orWhere('finishedBy')->in($userList)
+            ->orWhere('canceledBy')->in($userList)
+            ->orWhere('contactedBy')->in($userList)
+            ->orWhere('handlers')->in($userList)
             ->markRight(1)
             ->fi()
             ->beginIF($customer)->andWhere('customer')->eq($customer)->fi()

@@ -83,15 +83,17 @@ class orderModel extends model
         if(strpos($orderBy, 'status') !== false) $orderBy .= ', closedReason';
         if(strpos($orderBy, 'id') === false) $orderBy .= ', id_desc';
 
+	$userList = $this->loadModel('user')->getSubUsers($this->app->user);
+
         $orders = $this->dao->select('o.*, c.name as customerName, c.level as level')->from(TABLE_ORDER)->alias('o')
             ->leftJoin(TABLE_CUSTOMER)->alias('c')->on("o.customer=c.id")
             ->where('o.deleted')->eq(0)
-            ->beginIF($owner == 'my' and strpos('assignedTo,createdBy,signedBy', $mode) === false)
+            ->beginIF($userList != '')
             ->andWhere()->markLeft(1)
-            ->where('o.assignedTo')->eq($this->app->user->account)
-            ->orWhere('o.createdBy')->eq($this->app->user->account)
-            ->orWhere('o.editedBy')->eq($this->app->user->account)
-            ->orWhere('o.signedBy')->eq($this->app->user->account)
+            ->where('o.assignedTo')->in($userList)
+            ->orWhere('o.createdBy')->in($userList)
+            ->orWhere('o.editedBy')->in($userList)
+            ->orWhere('o.signedBy')->in($userList)
             ->markRight(1)
             ->fi()
             ->beginIF($mode == 'past')->andWhere('o.nextDate')->andWhere('o.nextDate')->lt(helper::today())->fi()

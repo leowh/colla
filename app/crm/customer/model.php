@@ -82,6 +82,8 @@ class customerModel extends model
         $customerQuery = $this->loadModel('search', 'sys')->replaceDynamic($this->session->customerQuery);
 
         if(strpos($orderBy, 'id') === false) $orderBy .= ', id_desc';
+	        
+	$userList = $this->loadModel('user')->getSubUsers($this->app->user);
 
         return $this->dao->select('*')->from(TABLE_CUSTOMER)
             ->where('deleted')->eq(0)
@@ -94,7 +96,7 @@ class customerModel extends model
             ->beginIF($mode == 'thisweek')->andWhere('nextDate')->between($thisWeek['begin'], $thisWeek['end'])->fi()
             ->beginIF($mode == 'thismonth')->andWhere('nextDate')->between($thisMonth['begin'], $thisMonth['end'])->fi()
             ->beginIF($mode == 'public')->andWhere('public')->eq('1')->fi()
-            ->beginIF($mode == 'assignedTo')->andWhere('assignedTo')->eq($this->app->user->account)->fi()
+            ->beginIF($mode == 'assignedTo')->andWhere('assignedTo')->in($userList)->fi()
             ->beginIF($mode == 'query')->andWhere($param)->fi()
             ->beginIF($mode == 'bysearch')->andWhere($customerQuery)->fi()
             ->beginIF(strpos('all, bysearch, public, assignedTo, query', $mode) === false)->andWhere('nextDate')->ne('0000-00-00')->fi()

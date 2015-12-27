@@ -63,6 +63,34 @@ class userModel extends model
     }
 
     /**
+     * Get the account's sub user array.
+     * 
+     * @param  string    $user
+     * @access public
+     * @return array
+     */
+    public function getSubUsers($user)
+    {
+	$users = array();
+	if( $user->admin == 'super' )
+		return '';
+
+	if( isset($user->rights['crm']['manageall']))
+	{
+		$tmpDept = $this->loadModel('tree')->getDeptManagedByMe($user->account);
+        	foreach($tmpDept as $d) $myDeptList[$d->id] = $d->id;
+
+        	$users = $this->dao->select('account')->from(TABLE_USER) 
+            		->where('1=1')
+            		->andWhere('dept')->in($myDeptList)->fi()
+            		->orderBy('id_asc')    
+            		->fetchPairs();
+
+	}
+	$users[$user->account] = $user->account;
+	return $users;
+     }
+    /**
      * Print use select.
      * 
      * @param  int    $name 
