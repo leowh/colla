@@ -103,7 +103,9 @@
               <td class='text-left visible-lg'><div title="<?php echo $trade->desc;?>" class='w-200px text-ellipsis'><?php echo $trade->desc;?><div></td>
               <td>
                 <?php commonModel::printLink('trade', 'edit', "tradeID={$trade->id}", $lang->edit);?>
-                <?php commonModel::printLink('trade', 'detail', "tradeID={$trade->id}", $lang->trade->detail, "data-toggle='modal'");?>
+                <?php //commonModel::printLink('trade', 'detail', "tradeID={$trade->id}", $lang->trade->detail, "data-toggle='modal'");?>
+                <?php if( $trade->type == 'out' ) commonModel::printLink('purchase',    'viewFromTrade', "purchaseID={$trade->contract}", $lang->trade->detail,"data-toggle='modal'");?>
+                <?php if( $trade->type == 'in' ) commonModel::printLink('crm.contract', 'viewFromTrade', "contractID={$trade->contract}", $lang->trade->detail,"data-toggle='modal'");?>
                 <?php commonModel::printLink('trade', 'delete', "tradeID={$trade->id}", $lang->delete, "class='deleter'");?>
               </td>
             </tr>

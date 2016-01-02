@@ -422,6 +422,37 @@ class contract extends control
      * @access public
      * @return void
      */
+    public function viewFromTrade($contractID)
+    {
+        $contract = $this->contract->getByID($contractID);
+
+        /* Save session for return link. */
+        $uri = $this->app->getURI(true);
+        $this->session->set('customerList', $uri);
+        $this->session->set('contactList',  $uri);
+        if(!$this->session->orderList) $this->session->set('orderList', $uri);
+
+        $this->view->title        = $this->lang->contract->view;
+        $this->view->orders       = $this->loadModel('order')->getByIdList($contract->order);
+        $this->view->customers    = $this->loadModel('customer')->getPairs('client');
+        $this->view->contacts     = $this->loadModel('contact')->getPairs($contract->customer);
+        $this->view->products     = $this->loadModel('product')->getPairs();
+        $this->view->users        = $this->loadModel('user')->getPairs();
+        $this->view->contract     = $contract;
+        $this->view->actions      = $this->loadModel('action')->getList('contract', $contractID);
+        $this->view->currencySign = $this->loadModel('common', 'sys')->getCurrencySign();
+        $this->view->preAndNext   = $this->common->getPreAndNextObject('contract', $contractID);
+
+        $this->display();
+    }
+
+    /**
+     * View contract. 
+     * 
+     * @param  int    $contractID 
+     * @access public
+     * @return void
+     */
     public function view($contractID)
     {
         $contract = $this->contract->getByID($contractID);

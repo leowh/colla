@@ -410,7 +410,6 @@ class purchase extends control
         $this->view->purchaseID = $purchaseID;
         $this->display();
     }
-
     /**
      * View purchase. 
      * 
@@ -419,6 +418,37 @@ class purchase extends control
      * @return void
      */
     public function view($purchaseID)
+    {
+        $purchase = $this->purchase->getByID($purchaseID);
+
+        /* Save session for return link. */
+        $uri = $this->app->getURI(true);
+        $this->session->set('customerList', $uri);
+        $this->session->set('contactList',  $uri);
+        if(!$this->session->orderList) $this->session->set('orderList', $uri);
+
+        $this->view->title        = $this->lang->purchase->view;
+        $this->view->orders       = $this->loadModel('order','crm')->getByIdList($purchase->order);
+        $this->view->customers    = $this->loadModel('customer','crm')->getPairs('provider');
+        $this->view->contacts     = $this->loadModel('contact','crm')->getPairs($purchase->customer);
+        $this->view->products     = $this->loadModel('product','crm')->getPairs();
+        $this->view->users        = $this->loadModel('user')->getPairs();
+        $this->view->purchase     = $purchase;
+        $this->view->actions      = $this->loadModel('action')->getList('contract', $purchaseID);
+        $this->view->currencySign = $this->loadModel('common', 'sys')->getCurrencySign();
+        $this->view->preAndNext   = $this->common->getPreAndNextObject('contract', $purchaseID);
+
+        $this->display();
+    }
+
+    /**
+     * View purchase. 
+     * 
+     * @param  int    $purchaseID 
+     * @access public
+     * @return void
+     */
+    public function viewFromTrade($purchaseID)
     {
         $purchase = $this->purchase->getByID($purchaseID);
 
