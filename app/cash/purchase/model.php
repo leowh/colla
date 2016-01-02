@@ -739,10 +739,10 @@ class purchaseModel extends model
             {
                 if($purchase->currency == $key)
                 {
-                    if(!isset($totalAmount['contract'][$key])) $totalAmount['contract'][$key] = 0;
+                    if(!isset($totalAmount['purchase'][$key])) $totalAmount['purchase'][$key] = 0;
                     if(!isset($totalAmount['return'][$key]))   $totalAmount['return'][$key] = 0;
 
-                    $totalAmount['contract'][$key] += $purchase->amount;
+                    $totalAmount['purchase'][$key] += $purchase->amount;
                     
                     if(isset($totalReturn[$purchase->id])) foreach($totalReturn[$purchase->id] as $return) $totalAmount['return'][$key] += $return->amount;
                 }
