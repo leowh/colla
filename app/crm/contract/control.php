@@ -24,6 +24,7 @@ class contract extends control
     {
         parent::__construct($moduleName, $methodName, $appName);
         $this->app->loadLang('order', 'crm');
+        $this->loadModel('trade','cash');
     }
 
     /**
@@ -266,6 +267,10 @@ class contract extends control
     {
         $contract     = $this->contract->getByID($contractID);
         $currencySign = $this->loadModel('common', 'sys')->getCurrencySign();
+	$users         = $this->loadModel('user')->getPairs();
+        $depositorList = array('' => '') + $this->loadModel('depositor','cash')->getPairs();
+        $categories    = $this->loadModel('tree')->getOptionMenu('in', 0, $removeRoot = true);
+
         if(!empty($_POST))
         {
             $this->contract->receive($contractID);
@@ -289,7 +294,9 @@ class contract extends control
 
         $this->view->title        = $contract->name;
         $this->view->contract     = $contract;
-        $this->view->users        = $this->loadModel('user')->getPairs();
+	$this->view->categories    = $categories;
+        $this->view->depositorList = $depositorList;
+        $this->view->users         = $users;
         $this->view->currencySign = $currencySign;
         $this->display();
     }
@@ -448,7 +455,7 @@ class contract extends control
      */
     public function delete($contractID)
     {
-        $this->contract->delete(TABLE_CONTRACT, $contractID);
+	$this->dao->delete()->from(TABLE_CONTRACT)->where('id')->eq($contractID)->exec();
         if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
         $this->send(array('result' => 'success', 'locate' => inlink('browse')));
     }

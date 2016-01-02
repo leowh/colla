@@ -96,11 +96,27 @@ class purchaseModel extends model
      */
     public function getPairs($customerID)
     {
-        return $this->dao->select('id, name')->from(TABLE_CONTRACT)
-            ->where(1)
-            ->beginIF($customerID)->andWhere('customer')->eq($customerID)->fi()
-            ->andWhere('deleted')->eq(0)
-            ->fetchPairs('id', 'name');
+
+ 	$userList = $this->loadModel('user')->getSubUsers($this->app->user);
+
+        return $this->dao->select('*')->from(TABLE_CONTRACT)
+            ->where('deleted')->eq(0)
+            ->andWhere('type')->eq('purchase')
+            ->beginIF($userList != '')
+            ->andWhere()
+            ->markLeft(1)
+            ->where('createdBy')->in($userList)
+            ->orWhere('editedBy')->in($userList)
+            ->orWhere('signedBy')->in($userList)
+            ->orWhere('returnedBy')->in($userList)
+            ->orWhere('deliveredBy')->in($userList)
+            ->orWhere('finishedBy')->in($userList)
+            ->orWhere('canceledBy')->in($userList)
+            ->orWhere('contactedBy')->in($userList)
+            ->orWhere('handlers')->in($userList)
+            ->markRight(1)
+            ->fi()
+            ->fetchPairs('id','name');
     }
 
     /**
@@ -426,7 +442,7 @@ class purchaseModel extends model
             ->add('contract', $purchaseID)
             ->setDefault('returnedBy', $this->app->user->account)
             ->setDefault('returnedDate', $now)
-            ->remove('finish,handlers,depositor')
+            ->remove('finish,handlers,depositor,category')
             ->get();
         
 	$this->dao->insert(TABLE_PLAN)
@@ -450,9 +466,11 @@ class purchaseModel extends model
 
             if(!dao::isError() and $this->post->finish) $this->dao->update(TABLE_CUSTOMER)->set('status')->eq('payed')->where('id')->eq($purchase->customer)->exec();
 
+	    $ret = $this->loadModel('trade','cash')->createReceive('out',$purchaseID);
+
             return !dao::isError();
         }
-
+	
         return false;
     }
 

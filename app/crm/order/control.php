@@ -297,7 +297,7 @@ class order extends control
      */
     public function delete($orderID)
     {
-        $this->order->delete(TABLE_ORDER, $orderID);
+        $this->dao->delete()->from(TABLE_ORDER)->where('id')->eq($orderID)->exec();
         if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
         $this->send(array('result' => 'success'));
     }

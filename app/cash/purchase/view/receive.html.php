@@ -33,6 +33,20 @@
     </tr>
 
     <tr>
+          <th class='w-100px'><?php echo $lang->trade->depositor;?></th>
+          <td><?php echo html::select('depositor', $depositorList, '', "class='form-control'");?></td>
+    </tr>
+
+    <tr class='expense'>
+          <th><?php echo $lang->trade->category;?></th>
+          <td>
+            <div class='input-group'>
+              <?php echo html::select('category', array('') + (array) $categories, '', "class='form-control'");?>
+            </div>
+          </td>
+    </tr>
+
+    <tr>
       <th><?php echo $lang->purchase->returnedBy;?></th>
       <td><?php echo html::select('returnedBy', $users, $this->app->user->account, "class='form-control chosen'");?></td><td></td>
     </tr>

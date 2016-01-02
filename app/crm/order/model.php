@@ -380,6 +380,7 @@ class orderModel extends model
             ->get();
 
         $order->product = $order->product ? ',' . $order->product . ',' : '';
+	$order->status  = $this->post->status;
 
         $this->dao->update(TABLE_ORDER)
             ->data($order, $skip = 'referer')

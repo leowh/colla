@@ -101,11 +101,26 @@ class contractModel extends model
      */
     public function getPairs($customerID)
     {
-        return $this->dao->select('id, name')->from(TABLE_CONTRACT)
-            ->where(1)
-            ->beginIF($customerID)->andWhere('customer')->eq($customerID)->fi()
-            ->andWhere('deleted')->eq(0)
-            ->fetchPairs('id', 'name');
+  	$userList = $this->loadModel('user')->getSubUsers($this->app->user);
+
+        return $this->dao->select('*')->from(TABLE_CONTRACT)
+            ->where('deleted')->eq(0)
+            ->andWhere('type')->ne('purchase')
+            ->beginIF($userList != '')
+            ->andWhere()
+            ->markLeft(1)
+            ->where('createdBy')->in($userList)
+            ->orWhere('editedBy')->in($userList)
+            ->orWhere('signedBy')->in($userList)
+            ->orWhere('returnedBy')->in($userList)
+            ->orWhere('deliveredBy')->in($userList)
+            ->orWhere('finishedBy')->in($userList)
+            ->orWhere('canceledBy')->in($userList)
+            ->orWhere('contactedBy')->in($userList)
+            ->orWhere('handlers')->in($userList)
+            ->markRight(1)
+            ->fi()
+            ->fetchPairs('id','name');
     }
 
     /**
@@ -489,7 +504,7 @@ class contractModel extends model
             ->add('contract', $contractID)
             ->setDefault('returnedBy', $this->app->user->account)
             ->setDefault('returnedDate', $now)
-            ->remove('finish,handlers')
+            ->remove('finish,handlers,category,depositor')
             ->get();
 
         $this->dao->insert(TABLE_PLAN)
@@ -512,6 +527,8 @@ class contractModel extends model
             $this->dao->update(TABLE_CONTRACT)->data($contractData, $skip = 'uid, comment')->where('id')->eq($contractID)->exec();
 
             if(!dao::isError() and $this->post->finish) $this->dao->update(TABLE_CUSTOMER)->set('status')->eq('payed')->where('id')->eq($contract->customer)->exec();
+
+            $ret = $this->loadModel('trade','cash')->createReceive('in',$contractID);
 
             return !dao::isError();
         }

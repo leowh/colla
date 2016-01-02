@@ -141,9 +141,7 @@ class trade extends control
         $this->view->contractList  = $this->loadModel('contract', 'crm')->getList($customerID = 0);
         $this->view->deptList      = $this->loadModel('tree')->getOptionMenu('dept', 0, $removeRoot = true);
         $this->view->users         = $this->loadModel('user')->getPairs('nodeleted');
-
-        if($type == 'out') $this->view->categories = $this->lang->trade->expenseCategoryList + $this->loadModel('tree')->getOptionMenu('out', 0, $removeRoot = true);
-        if($type == 'in')  $this->view->categories = $this->lang->trade->incomeCategoryList + $this->loadModel('tree')->getOptionMenu('in', 0, $removeRoot = true);
+        $this->view->categories    = $this->loadModel('tree')->getOptionMenu($type, 0, $removeRoot = true);
 
         $this->display();
     }
@@ -222,14 +220,19 @@ class trade extends control
         $this->view->traderList    = $this->loadModel('customer', 'crm')->getPairs('provider');
         $this->view->productList   = $this->loadModel('product', 'crm')->getPairs();
         $this->view->orderList     = $this->loadModel('order', 'crm')->getPairs($customerID = 0);
-        $this->view->contractList  = array('' => '') + $this->loadModel('contract', 'crm')->getPairs($customerID = 0);
         $this->view->tradeContract = array('' => '') + $this->loadModel('contract', 'crm')->getPairs($customerID = $trade->trader);
         $this->view->users         = $this->loadModel('user')->getPairs('nodeleted');
         $this->view->deptList      = $this->loadModel('tree')->getOptionMenu('dept', 0, $removeRoot = true);
        
-        if($trade->type == 'out') $this->view->categories = $this->lang->trade->expenseCategoryList + $this->loadModel('tree')->getOptionMenu('out', 0);
-        if($trade->type == 'in')  $this->view->categories = $this->lang->trade->incomeCategoryList + $this->loadModel('tree')->getOptionMenu('in', 0);
-
+	$this->view->categories 	= $this->loadModel('tree')->getOptionMenu($trade->type, 0);
+        if($trade->type == 'out') 
+	{
+		$this->view->contractList  	= array('' => '') + $this->loadModel('purchase', 'cash')->getPairs($customerID = 0);
+	}
+        if($trade->type == 'in')  
+	{
+		$this->view->contractList 	= array('' => '') + $this->loadModel('contract', 'crm')->getPairs($customerID = 0);
+	}
         $this->display();
     }
 
@@ -315,8 +318,7 @@ class trade extends control
         $this->view->details    = $details;
         $this->view->users      = $this->loadModel('user')->getPairs();
 
-        if($trade->type == 'out') $this->view->categories = $this->lang->trade->expenseCategoryList + $this->loadModel('tree')->getOptionMenu('out', 0, $removeRoot = true);
-        if($trade->type == 'in')  $this->view->categories = $this->lang->trade->incomeCategoryList + $this->loadModel('tree')->getOptionMenu('in', 0, $removeRoot = true);
+	$this->view->categories = $this->loadModel('tree')->getOptionMenu($trade->type, 0, $removeRoot = true);
 
         $this->display();
     }

@@ -25,6 +25,7 @@ class purchase extends control
     {
         parent::__construct();
 	$this->loadModel('contract','crm');
+	$this->loadModel('trade');
     }
 
     /**
@@ -76,6 +77,7 @@ class purchase extends control
         $this->view->currencySign = $this->loadModel('common', 'sys')->getCurrencySign();
         $this->view->currencyList = $this->common->getCurrencyList();
         if($purchases) $this->view->totalAmount = $this->purchase->countAmount($purchases);
+
         $this->display();
     }
 
@@ -260,6 +262,9 @@ class purchase extends control
         $purchase      = $this->purchase->getByID($purchaseID);
         $currencySign  = $this->loadModel('common', 'sys')->getCurrencySign();
         $users         = $this->loadModel('user')->getPairs();
+	$depositorList = array('' => '') + $this->loadModel('depositor','cash')->getPairs();
+        $categories    = $this->loadModel('tree')->getOptionMenu('out', 0, $removeRoot = true);
+
 
         if(!empty($_POST))
         {
@@ -281,12 +286,10 @@ class purchase extends control
             
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => 'reload'));
         }
-	
-	/* update the trade */
-	$this->loadModel('trade')->create('out');
 
         $this->view->title         = $purchase->name;
 	$this->view->categories    = $categories;
+	$this->view->depositorList = $depositorList;
         $this->view->purchase      = $purchase;
         $this->view->users         = $users;
         $this->view->currencySign  = $currencySign;
@@ -448,7 +451,7 @@ class purchase extends control
      */
     public function delete($purchaseID)
     {
-        $this->purchase->delete(TABLE_CONTRACT, $purchaseID);
+	$this->dao->delete()->from(TABLE_CONTRACT)->where('id')->eq($purchaseID)->exec();
         if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
         $this->send(array('result' => 'success', 'locate' => inlink('browse')));
     }

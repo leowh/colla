@@ -232,8 +232,48 @@ class tradeModel extends model
 
             $this->dao->update(TABLE_TRADE)->set('trader')->eq($trader)->where('id')->eq($tradeID)->exec();
         }
-
+	//print_r( $trade ); exit();
         return $tradeID;
+    }
+
+    /**
+     * Create a trade from receive in purchase.
+     * 
+     * @param  string    $type   in|out
+     * @access public
+     * @return void
+     */
+    public function createReceive($type, $contractID)
+    {
+        $now = helper::now();
+	$contract = $this->loadModel('contract','crm')->getByID($contractID);
+	$trade = new stdclass();
+	$trade->type		= $type;
+	$trade->contract	= $contractID;
+	$trade->depositor 	= $this->post->depositor;
+	$trade->category 	= $this->post->category;
+	$trade->trader		= $contract->customer;
+	$trade->money		= $this->post->amount;
+	$trade->dept		= $this->app->user->dept;
+            
+	$trade->handlers     	= implode(',', $this->post->handlers);
+	$trade->date		= $now;
+	$trade->desc		= $this->post->comment;
+	$trade->createdBy	= $this->app->user->account;
+	$trade->createdDate	= $now;
+	$trade->editedBy	= $this->app->user->account;
+	$trade->editedDate	= $now;
+	
+	$depositor = $this->loadModel('depositor')->getByID($this->post->depositor);
+        if(!empty($depositor)) $trade->currency = $depositor->currency;
+
+        $this->dao->insert(TABLE_TRADE)
+            ->data($trade)
+            ->exec();
+
+        $tradeID = $this->dao->lastInsertID();
+	
+        return $trade;
     }
 
     /**
