@@ -17,7 +17,7 @@ $lang->menu->cash->dashboard = '首页|dashboard|index|';
 $lang->menu->cash->trade     = '记账|trade|browse|';
 $lang->menu->cash->check     = '对账|depositor|check|';
 $lang->menu->cash->depositor = '账户|depositor|browse|';
-$lang->menu->cash->contract  = '采购|contract|browse|mode=unfinished';
+$lang->menu->cash->purchase  = '采购|purchase|browse|mode=unfinished';
 $lang->menu->cash->provider  = '供应商|provider|browse|';
 //$lang->menu->cash->contact   = '联系人|contact|browse|';
 $lang->menu->cash->setting   = '设置|tree|browse|type=in|';
@@ -36,14 +36,13 @@ $lang->trade->menu->inveset  = array('link' => '投资|trade|browse|mode=inveset
 $lang->trade->menu->report   = array('link' => '报表|trade|report|');
 
 /* Menu of purchase module. */
-$lang->contract = new stdclass();
-$lang->contract->menu = new stdclass();
-$lang->contract->menu->browse       = '所有采购|purchase|browse|mode=all';
-$lang->contract->menu->unfinished   = '未完成|purchase|browse|mode=unfinished';
-$lang->contract->menu->unreceived   = '支付中|purchase|browse|mode=unreceived';
-$lang->contract->menu->undeliveried = '交付中|purchase|browse|mode=undeliveried';
-$lang->contract->menu->finished     = '已完成|purchase|browse|mode=finished';
-$lang->contract->menu->report       = '报表|report|browse|module=purchase';
+$lang->purchase = new stdclass();
+$lang->purchase->menu = new stdclass();
+$lang->purchase->menu->browse       = '所有采购|purchase|browse|mode=all';
+$lang->purchase->menu->unfinished   = '未完成|purchase|browse|mode=unfinished';
+$lang->purchase->menu->unreceived   = '支付中|purchase|browse|mode=unreceived';
+$lang->purchase->menu->undeliveried = '交付中|purchase|browse|mode=undeliveried';
+$lang->purchase->menu->finished     = '已完成|purchase|browse|mode=finished';
 
 /* Menu of trade module. */
 $lang->provider = new stdclass();

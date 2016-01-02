@@ -1,11 +1,11 @@
 <?php 
 /**
- * The setting view of contract module of RanZhi.
+ * The setting view of purchase module of RanZhi.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Xiying Guan <guanxiying@xirangit.com>
- * @package     contract 
+ * @package     purchase 
  * @version     $Id$
  * @link        http://www.ranzhico.com
  */
@@ -13,15 +13,15 @@
 <?php include '../../common/view/header.html.php';?>
 <div class='panel'>
   <div class='panel-heading'>
-  <strong><i class='icon-wrench'></i> <?php echo $lang->contract->setting;?></strong>
+  <strong><i class='icon-wrench'></i> <?php echo $lang->purchase->setting;?></strong>
   </div>
   <div class='panel-body'>
     <form method='post' id='ajaxForm'>
       <div class='w-450px'>
         <?php
-        foreach($config->contract->codeFormat as $unit):
+        foreach($config->purchase->codeFormat as $unit):
         $value = '';
-        if(!isset($lang->contract->codeUnitList[$unit]))
+        if(!isset($lang->purchase->codeUnitList[$unit]))
         {
             $value = $unit; 
             $unit  = 'fix';
@@ -32,7 +32,7 @@
           <div class='col-xs-9'>
             <div class='input-cell<?php echo $hideInput ? '' : ' input-group'; ?>'>
             <?php
-            echo html::select('unit[]', $lang->contract->codeUnitList, $unit, "class='form-control unit'");
+            echo html::select('unit[]', $lang->purchase->codeUnitList, $unit, "class='form-control unit'");
             echo "<span class='input-group-addon input-cell-addon'>:</span>" . html::input('unit[]', $value, "class='form-control input-cell-addon'");
             ?>
             </div>
@@ -53,7 +53,7 @@
     <div class='col-xs-9'>
       <div class='input-cell'>
         <?php
-        echo html::select('unit[]', $lang->contract->codeUnitList, '', "class='form-control unit'");
+        echo html::select('unit[]', $lang->purchase->codeUnitList, '', "class='form-control unit'");
         echo "<span class='input-group-addon input-cell-addon'>:</span>" . html::input('unit[]', '', "class='form-control input-cell-addon'");
         ?>
       </div>

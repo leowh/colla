@@ -1,43 +1,39 @@
 <?php
 /**
- * The model file for contract of RanZhi.
+ * The model file for purchase of RanZhi.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
- * @package     contract
+ * @package     purchase
  * @version     $Id$
  * @link        http://www.ranzhico.com
  */
-class contractModel extends model
+class purchaseModel extends model
 {
     /**
-     * Get contract by ID.
+     * Get purchase by ID.
      * 
-     * @param  int    $contractID 
+     * @param  int    $purchaseID 
      * @access public
      * @return object.
      */
-    public function getByID($contractID)
+    public function getByID($purchaseID)
     {
-        $contract = $this->dao->select('*')->from(TABLE_CONTRACT)->where('id')->eq($contractID)->fetch();
+        $purchase = $this->dao->select('*')->from(TABLE_CONTRACT)->where('id')->eq($purchaseID)->fetch();
 
-        if($contract)
+        if($purchase)
         {
-            $contract->order = array();
-            $contractOrders  = $this->dao->select('*')->from(TABLE_CONTRACTORDER)->where('contract')->eq($contractID)->fetchAll();
-            foreach($contractOrders as $contractOrder) $contract->order[] = $contractOrder->order;
-
-            $contract->files        = $this->loadModel('file')->getByObject('contract', $contractID);
-            $contract->returnList   = $this->getReturnList($contractID);
-            $contract->deliveryList = $this->getDeliveryList($contractID);
+            $purchase->files        = $this->loadModel('file')->getByObject('contract', $purchaseID);
+            $purchase->returnList   = $this->getReturnList($purchaseID);
+            $purchase->deliveryList = $this->getDeliveryList($purchaseID);
         }
 
-        return $contract;
+        return $purchase;
     }
 
     /**
-     * Get contract list.
+     * Get purchase list.
      * 
      * @param  int    $customer
      * @param  string $orderBy 
@@ -48,8 +44,8 @@ class contractModel extends model
     public function getList($customer = 0, $mode = 'all', $type = 'purchase', $orderBy = 'id_desc', $pager = null)
     {
         /* process search condition. */
-        if($this->session->contractQuery == false) $this->session->set('contractQuery', ' 1 = 1');
-        $contractQuery = $this->loadModel('search', 'sys')->replaceDynamic($this->session->contractQuery);
+        if($this->session->purchaseQuery == false) $this->session->set('purchaseQuery', ' 1 = 1');
+        $purchaseQuery = $this->loadModel('search', 'sys')->replaceDynamic($this->session->purchaseQuery);
 
         if(strpos($orderBy, 'id') === false) $orderBy .= ', id_desc';
 	
@@ -85,14 +81,14 @@ class contractModel extends model
             ->andWhere('`end`')->gt(date(DT_DATE1))
             ->andWhere('`status`')->ne('canceled')
             ->fi()
-            ->beginIF($mode == 'bysearch')->andWhere($contractQuery)->fi()
+            ->beginIF($mode == 'bysearch')->andWhere($purchaseQuery)->fi()
             ->orderBy($orderBy)
             ->page($pager)
             ->fetchAll('id');
     }
 
     /**
-     * Get contract pairs.
+     * Get purchase pairs.
      * 
      * @param  int    $customerID
      * @access public
@@ -120,15 +116,15 @@ class contractModel extends model
     }
 
     /**
-     * Get returnList of its contract.
+     * Get returnList of its purchase.
      * 
-     * @param  int    $contractID 
+     * @param  int    $purchaseID 
      * @access public
      * @return array
      */
-    public function getReturnList($contractID, $orderBy = 'id_desc')
+    public function getReturnList($purchaseID, $orderBy = 'id_desc')
     {
-        return $this->dao->select('*')->from(TABLE_PLAN)->where('contract')->eq($contractID)->orderBy($orderBy)->fetchAll();
+        return $this->dao->select('*')->from(TABLE_PLAN)->where('contract')->eq($purchaseID)->orderBy($orderBy)->fetchAll();
     }
 
     /**
@@ -144,19 +140,19 @@ class contractModel extends model
     }
 
     /**
-     * Get deliveryList of its contract.
+     * Get deliveryList of its purchase.
      * 
-     * @param  int    $contractID 
+     * @param  int    $purchaseID 
      * @access public
      * @return array
      */
-    public function getDeliveryList($contractID, $orderBy = 'id_desc')
+    public function getDeliveryList($purchaseID, $orderBy = 'id_desc')
     {
-        return $this->dao->select('*')->from(TABLE_DELIVERY)->where('contract')->eq($contractID)->orderBy($orderBy)->fetchAll();
+        return $this->dao->select('*')->from(TABLE_DELIVERY)->where('contract')->eq($purchaseID)->orderBy($orderBy)->fetchAll();
     }
 
     /**
-     * Create contract.
+     * Create purchase.
      * 
      * @access public
      * @return int|bool
@@ -164,7 +160,7 @@ class contractModel extends model
     public function create()
     {
         $now = helper::now();
-        $contract = fixer::input('post')
+        $purchase = fixer::input('post')
             ->add('createdBy', $this->app->user->account)
             ->add('createdDate', $now)
             ->add('status', 'normal')
@@ -180,72 +176,49 @@ class contractModel extends model
             ->stripTags('items', $this->config->allowedTags->admin)
             ->get();
 
-        $contract = $this->loadModel('file')->processEditor($contract, $this->config->contract->editor->create['id']);
-	$contract->code = 'LZYBUY-P' . strval( $contract->customer) . '-' . date("Ymdhi");
+        $purchase = $this->loadModel('file')->processEditor($purchase, $this->config->purchase->editor->create['id']);
+	$purchase->code = 'LZYBUY-P' . strval( $purchase->customer) . '-' . date("Ymdhi");
 
-        $this->dao->insert(TABLE_CONTRACT)->data($contract, 'order,uid,files,labels,real')
+        $this->dao->insert(TABLE_CONTRACT)->data($purchase, 'order,uid,files,labels,real')
             ->autoCheck()
-            ->batchCheck($this->config->contract->require->create, 'notempty')
-            ->checkIF($contract->end != '0000-00-00', 'end', 'ge', $contract->begin)
+            ->batchCheck($this->config->purchase->require->create, 'notempty')
+            ->checkIF($purchase->end != '0000-00-00', 'end', 'ge', $purchase->begin)
             ->exec();
 
-        $contractID = $this->dao->lastInsertID();
+        $purchaseID = $this->dao->lastInsertID();
 
         if(!dao::isError())
         {
-            foreach($contract->order as $key => $orderID)
-            {
-                if($orderID)
-                {
-                    $data = new stdclass();
-                    $data->contract = $contractID;
-                    $data->order    = $orderID;
-                    $this->dao->insert(TABLE_CONTRACTORDER)->data($data)->exec();
-
-                    $order = new stdclass();
-                    $order->status     = 'signed';
-                    $order->real       = $contract->real[$key];
-                    $order->signedBy   = $contract->signedBy;
-                    $order->signedDate = $contract->signedDate;
-                    $this->dao->update(TABLE_ORDER)->data($order)->where('id')->eq($orderID)->exec();
-
-                    if(dao::isError()) return false;
-                    $this->loadModel('action')->create('order', $orderID, 'Signed', '', $contract->real[$key]);
-                }
-            }
-
             /* Update customer info. */
             $customer = new stdclass();
             $customer->status = 'signed';
             $customer->editedDate = helper::now();
-            $this->dao->update(TABLE_CUSTOMER)->data($customer)->where('id')->eq($contract->customer)->exec();
-
-            $this->loadModel('file')->saveUpload('contract', $contractID);
-
-            return $contractID;
+            $this->dao->update(TABLE_CUSTOMER)->data($customer)->where('id')->eq($purchase->customer)->exec();
+            $this->loadModel('file')->saveUpload('contract', $purchaseID);
+            return $purchaseID;
         }
 
         return false;
     }
 
     /**
-     * Update contract.
+     * Update purchase.
      * 
-     * @param  int    $contractID 
+     * @param  int    $purchaseID 
      * @access public
      * @return bool
      */
-    public function update($contractID)
+    public function update($purchaseID)
     {
         $now      = helper::now();
-        $contract = $this->getByID($contractID);
+        $purchase = $this->getByID($purchaseID);
         $data     = fixer::input('post')
             ->join('handlers', ',')
             ->add('editedBy', $this->app->user->account)
             ->add('editedDate', $now)
             ->setDefault('order', array())
             ->setDefault('real', array())
-            ->setDefault('customer', $contract->customer)
+            ->setDefault('customer', $purchase->customer)
             ->setDefault('signedDate', '0000-00-00')
             ->setDefault('finishedDate', '0000-00-00')
             ->setDefault('canceledDate', '0000-00-00')
@@ -265,17 +238,17 @@ class contractModel extends model
             ->stripTags('items', $this->config->allowedTags->admin)
             ->get();
 
-        $data = $this->loadModel('file')->processEditor($data, $this->config->contract->editor->edit['id']);
+        $data = $this->loadModel('file')->processEditor($data, $this->config->purchase->editor->edit['id']);
         $this->dao->update(TABLE_CONTRACT)->data($data, 'uid,order,real')
-            ->where('id')->eq($contractID)
+            ->where('id')->eq($purchaseID)
             ->autoCheck()
-            ->batchCheck($this->config->contract->require->edit, 'notempty')
-            ->checkIF($contract->end != '0000-00-00', 'end', 'ge', $contract->begin)
+            ->batchCheck($this->config->purchase->require->edit, 'notempty')
+            ->checkIF($purchase->end != '0000-00-00', 'end', 'ge', $purchase->begin)
             ->exec();
         
         if(!dao::isError())
         {
-            if($contract->status == 'canceled' and $data->status == 'normal')
+            if($purchase->status == 'canceled' and $data->status == 'normal')
             {
                 foreach($data->order as $key => $orderID)
                 {
@@ -290,7 +263,7 @@ class contractModel extends model
                 }
             }
 
-            if($contract->status == 'normal' and $data->status == 'canceled')
+            if($purchase->status == 'normal' and $data->status == 'canceled')
             {
                 foreach($data->order as $orderID)
                 {
@@ -305,35 +278,35 @@ class contractModel extends model
                 }
             }
             
-            return commonModel::createChanges($contract, $data);
+            return commonModel::createChanges($purchase, $data);
         }
 
         return false;
     }
 
     /**
-     * The delivery of the contract.
+     * The delivery of the purchase.
      * 
-     * @param  int    $contractID 
+     * @param  int    $purchaseID 
      * @access public
      * @return bool
      */
-    public function delivery($contractID)
+    public function delivery($purchaseID)
     {
         $now = helper::now();
         $data = fixer::input('post')
-            ->add('contract', $contractID)
+            ->add('contract', $purchaseID)
             ->setDefault('deliveredBy', $this->app->user->account)
             ->setDefault('deliveredDate', $now)
             ->stripTags('comment', $this->config->allowedTags->admin)
             ->get();
 
-        $data = $this->loadModel('file')->processEditor($data, $this->config->contract->editor->delivery['id']);
+        $data = $this->loadModel('file')->processEditor($data, $this->config->purchase->editor->delivery['id']);
         $this->dao->insert(TABLE_DELIVERY)->data($data, $skip = 'uid, handlers, finish')->autoCheck()->exec();
 
         if(!dao::isError())
         {
-            $contract = fixer::input('post')
+            $purchase = fixer::input('post')
                 ->add('delivery', 'doing')
                 ->add('editedBy', $this->app->user->account)
                 ->add('editedDate', $now)
@@ -344,9 +317,9 @@ class contractModel extends model
                 ->remove('finish')
                 ->get();
 
-            $this->dao->update(TABLE_CONTRACT)->data($contract, $skip = 'uid, comment')
+            $this->dao->update(TABLE_CONTRACT)->data($purchase, $skip = 'uid, comment')
                 ->autoCheck()
-                ->where('id')->eq($contractID)
+                ->where('id')->eq($purchaseID)
                 ->exec();
 
             return !dao::isError();
@@ -356,24 +329,24 @@ class contractModel extends model
     }
 
     /**
-     * Edit delivery of the contract.
+     * Edit delivery of the purchase.
      * 
      * @param  object $delivery 
-     * @param  object $contract 
+     * @param  object $purchase 
      * @access public
      * @return bool
      */
-    public function editDelivery($delivery, $contract)
+    public function editDelivery($delivery, $purchase)
     {
         $now = helper::now();
         $data = fixer::input('post')
-            ->add('contract', $contract->id)
+            ->add('contract', $purchase->id)
             ->setDefault('deliveredBy', $this->app->user->account)
             ->setDefault('deliveredDate', $now)
             ->stripTags('comment', $this->config->allowedTags->admin)
             ->get();
 
-        $data = $this->loadModel('file')->processEditor($data, $this->config->contract->editor->editdelivery['id']);
+        $data = $this->loadModel('file')->processEditor($data, $this->config->purchase->editor->editdelivery['id']);
         $this->dao->update(TABLE_DELIVERY)->data($data, $skip = 'uid, handlers, finish')->where('id')->eq($delivery->id)->autoCheck()->exec();
 
         if(!dao::isError())
@@ -381,23 +354,23 @@ class contractModel extends model
             $changes = commonModel::createChanges($delivery, $data);
             if($changes)
             {
-                $actionID = $this->loadModel('action')->create('contract', $contract->id, 'editDelivered');
+                $actionID = $this->loadModel('action')->create('contract', $purchase->id, 'editDelivered');
                 $this->action->logHistory($actionID, $changes);
             }
 
-            $deliveryList = $this->getDeliveryList($delivery->contract, 'deliveredDate_desc');
+            $deliveryList = $this->getDeliveryList($delivery->purchase, 'deliveredDate_desc');
 
-            $contractData = new stdclass();
-            $contractData->delivery      = 'doing';
-            $contractData->editedBy      = $this->app->user->account;
-            $contractData->editedDate    = $now;
-            $contractData->handlers      = implode(',', $this->post->handlers);
-            $contractData->deliveredBy   = current($deliveryList)->deliveredBy;
-            $contractData->deliveredDate = current($deliveryList)->deliveredDate;
+            $purchaseData = new stdclass();
+            $purchaseData->delivery      = 'doing';
+            $purchaseData->editedBy      = $this->app->user->account;
+            $purchaseData->editedDate    = $now;
+            $purchaseData->handlers      = implode(',', $this->post->handlers);
+            $purchaseData->deliveredBy   = current($deliveryList)->deliveredBy;
+            $purchaseData->deliveredDate = current($deliveryList)->deliveredDate;
 
-            if($this->post->finish) $contractData->delivery = 'done';
+            if($this->post->finish) $purchaseData->delivery = 'done';
 
-            $this->dao->update(TABLE_CONTRACT)->data($contractData, $skip = 'uid, comment')->where('id')->eq($contract->id)->exec();
+            $this->dao->update(TABLE_CONTRACT)->data($purchaseData, $skip = 'uid, comment')->where('id')->eq($purchase->id)->exec();
 
             return !dao::isError();
         }
@@ -418,39 +391,39 @@ class contractModel extends model
         $this->dao->delete()->from(TABLE_DELIVERY)->where('id')->eq($deliveryID)->exec();
 
         $deliveryList = $this->getDeliveryList($delivery->contract, 'deliveredDate_desc');
-        $contract = new stdclass();
+        $purchase = new stdclass();
         if(empty($deliveryList))
         {
-            $contract->delivery      = 'wait';
-            $contract->deliveredBy   = '';
-            $contract->deliveredDate = '0000-00-00';
+            $purchase->delivery      = 'wait';
+            $purchase->deliveredBy   = '';
+            $purchase->deliveredDate = '0000-00-00';
         }
         else
         {
-            $contract->delivery       = 'doing';
-            $contract->deliveredBy   = current($deliveryList)->deliveredBy;
-            $contract->deliveredDate = current($deliveryList)->deliveredDate;
+            $purchase->delivery       = 'doing';
+            $purchase->deliveredBy   = current($deliveryList)->deliveredBy;
+            $purchase->deliveredDate = current($deliveryList)->deliveredDate;
         }
 
-        $this->dao->update(TABLE_CONTRACT)->data($contract)->where('id')->eq($delivery->contract)->autoCheck()->exec();
+        $this->dao->update(TABLE_CONTRACT)->data($purchase)->where('id')->eq($delivery->contract)->autoCheck()->exec();
 
         return !dao::isError();
     }
 
     /**
-     * Receive payments of the contract.
+     * Receive payments of the purchase.
      * 
-     * @param  int    $contractID 
+     * @param  int    $purchaseID 
      * @access public
      * @return bool
      */
-    public function receive($contractID)
+    public function receive($purchaseID)
     {
-        $contract = $this->getByID($contractID);
+        $purchase = $this->getByID($purchaseID);
 
         $now = helper::now();
         $data = fixer::input('post')
-            ->add('contract', $contractID)
+            ->add('contract', $purchaseID)
             ->setDefault('returnedBy', $this->app->user->account)
             ->setDefault('returnedDate', $now)
             ->remove('finish,handlers,depositor')
@@ -459,23 +432,23 @@ class contractModel extends model
 	$this->dao->insert(TABLE_PLAN)
             ->data($data, $skip = 'uid, comment, depositor')
             ->autoCheck()
-            ->batchCheck($this->config->contract->require->receive, 'notempty')
+            ->batchCheck($this->config->purchase->require->receive, 'notempty')
             ->exec();
 
         if(!dao::isError())
         {
-            $contractData = new stdclass();
-            $contractData->return       = 'doing';
-            $contractData->editedBy     = $this->app->user->account;
-            $contractData->editedDate   = $now;
-            $contractData->handlers     = implode(',', $this->post->handlers);
-            $contractData->returnedBy   = $this->post->returnedBy ? $this->post->returnedBy : $this->app->user->account;
-            $contractData->returnedDate = $this->post->returnedDate ? $this->post->returnedDate : $now;
-            if($this->post->finish) $contractData->return = 'done';
+            $purchaseData = new stdclass();
+            $purchaseData->return       = 'doing';
+            $purchaseData->editedBy     = $this->app->user->account;
+            $purchaseData->editedDate   = $now;
+            $purchaseData->handlers     = implode(',', $this->post->handlers);
+            $purchaseData->returnedBy   = $this->post->returnedBy ? $this->post->returnedBy : $this->app->user->account;
+            $purchaseData->returnedDate = $this->post->returnedDate ? $this->post->returnedDate : $now;
+            if($this->post->finish) $purchaseData->return = 'done';
 
-            $this->dao->update(TABLE_CONTRACT)->data($contractData, $skip = 'uid, comment')->where('id')->eq($contractID)->exec();
+            $this->dao->update(TABLE_CONTRACT)->data($purchaseData, $skip = 'uid, comment')->where('id')->eq($purchaseID)->exec();
 
-            if(!dao::isError() and $this->post->finish) $this->dao->update(TABLE_CUSTOMER)->set('status')->eq('payed')->where('id')->eq($contract->customer)->exec();
+            if(!dao::isError() and $this->post->finish) $this->dao->update(TABLE_CUSTOMER)->set('status')->eq('payed')->where('id')->eq($purchase->customer)->exec();
 
             return !dao::isError();
         }
@@ -490,11 +463,11 @@ class contractModel extends model
      * @access public
      * @return bool
      */
-    public function editReturn($return, $contract)
+    public function editReturn($return, $purchase)
     {
         $now = helper::now();
         $data = fixer::input('post')
-            ->add('contract', $contract->id)
+            ->add('contract', $purchase->id)
             ->setDefault('returnedBy', $this->app->user->account)
             ->setDefault('returnedDate', $now)
             ->remove('finish,handlers')
@@ -504,7 +477,7 @@ class contractModel extends model
             ->data($data, $skip = 'uid, comment')
             ->where('id')->eq($return->id)
             ->autoCheck()
-            ->batchCheck($this->config->contract->require->receive, 'notempty')
+            ->batchCheck($this->config->purchase->require->receive, 'notempty')
             ->exec();
 
         if(!dao::isError())
@@ -512,25 +485,25 @@ class contractModel extends model
             $changes = commonModel::createChanges($return, $data);
             if($changes)
             {
-                $actionID = $this->loadModel('action')->create('contract', $contract->id, 'editReturned');
+                $actionID = $this->loadModel('action')->create('contract', $purchase->id, 'editReturned');
                 $this->action->logHistory($actionID, $changes);
             }
 
             $returnList = $this->getReturnList($return->contract, 'returnedDate_desc');
 
-            $contractData = new stdclass();
-            $contractData->return       = 'doing';
-            $contractData->editedBy     = $this->app->user->account;
-            $contractData->editedDate   = $now;
-            $contractData->handlers     = implode(',', $this->post->handlers);
-            $contractData->returnedBy   = current($returnList)->returnedBy;
-            $contractData->returnedDate = current($returnList)->returnedDate;
+            $purchaseData = new stdclass();
+            $purchaseData->return       = 'doing';
+            $purchaseData->editedBy     = $this->app->user->account;
+            $purchaseData->editedDate   = $now;
+            $purchaseData->handlers     = implode(',', $this->post->handlers);
+            $purchaseData->returnedBy   = current($returnList)->returnedBy;
+            $purchaseData->returnedDate = current($returnList)->returnedDate;
 
-            if($this->post->finish) $contractData->return = 'done';
+            if($this->post->finish) $purchaseData->return = 'done';
 
-            $this->dao->update(TABLE_CONTRACT)->data($contractData, $skip = 'uid, comment')->where('id')->eq($contract->id)->exec();
+            $this->dao->update(TABLE_CONTRACT)->data($purchaseData, $skip = 'uid, comment')->where('id')->eq($purchase->id)->exec();
 
-            if(!dao::isError() and $this->post->finish) $this->dao->update(TABLE_CUSTOMER)->set('status')->eq('payed')->where('id')->eq($contract->customer)->exec();
+            if(!dao::isError() and $this->post->finish) $this->dao->update(TABLE_CUSTOMER)->set('status')->eq('payed')->where('id')->eq($purchase->customer)->exec();
 
             return !dao::isError();
         }
@@ -552,52 +525,52 @@ class contractModel extends model
         $this->dao->delete()->from(TABLE_PLAN)->where('id')->eq($returnID)->exec();
 
         $returnList = $this->getReturnList($return->contract, 'returnedDate_desc');
-        $contract = new stdclass();
+        $purchase = new stdclass();
         if(empty($returnList))
         {
-            $contract->return       = 'wait';
-            $contract->returnedBy   = '';
-            $contract->returnedDate = '0000-00-00';
+            $purchase->return       = 'wait';
+            $purchase->returnedBy   = '';
+            $purchase->returnedDate = '0000-00-00';
         }
         else
         {
-            $contract->return       = 'doing';
-            $contract->returnedBy   = current($returnList)->returnedBy;
-            $contract->returnedDate = current($returnList)->returnedDate;
+            $purchase->return       = 'doing';
+            $purchase->returnedBy   = current($returnList)->returnedBy;
+            $purchase->returnedDate = current($returnList)->returnedDate;
         }
 
-        $this->dao->update(TABLE_CONTRACT)->data($contract)->where('id')->eq($return->contract)->autoCheck()->exec();
+        $this->dao->update(TABLE_CONTRACT)->data($purchase)->where('id')->eq($return->contract)->autoCheck()->exec();
 
         return !dao::isError();
     }
 
     /**
-     * Cancel contract.
+     * Cancel purchase.
      * 
-     * @param  int    $contractID 
+     * @param  int    $purchaseID 
      * @access public
      * @return bool
      */
-    public function cancel($contractID)
+    public function cancel($purchaseID)
     {
-        $contract = new stdclass();
-        $contract->status       = 'canceled';
-        $contract->canceledBy   = $this->app->user->account;
-        $contract->canceledDate = helper::now();
-        $contract->editedBy     = $this->app->user->account;
-        $contract->editedDate   = helper::now();
+        $purchase = new stdclass();
+        $purchase->status       = 'canceled';
+        $purchase->canceledBy   = $this->app->user->account;
+        $purchase->canceledDate = helper::now();
+        $purchase->editedBy     = $this->app->user->account;
+        $purchase->editedDate   = helper::now();
 
-        $this->dao->update(TABLE_CONTRACT)->data($contract, $skip = 'uid, comment')
+        $this->dao->update(TABLE_CONTRACT)->data($purchase, $skip = 'uid, comment')
             ->autoCheck()
-            ->where('id')->eq($contractID)
+            ->where('id')->eq($purchaseID)
             ->exec();
 
         if(!dao::isError()) 
         {
-            $contract = $this->getByID($contractID);
-            if($contract->order)
+            $purchase = $this->getByID($purchaseID);
+            if($purchase->order)
             {
-                foreach($contract->order as $orderID)
+                foreach($purchase->order as $orderID)
                 {
                     $order = new stdclass(); 
                     $order->status     = 'normal';
@@ -615,24 +588,24 @@ class contractModel extends model
     }
 
     /**
-     * Finish contract.
+     * Finish purchase.
      * 
-     * @param  int    $contractID 
+     * @param  int    $purchaseID 
      * @access public
      * @return bool
      */
-    public function finish($contractID)
+    public function finish($purchaseID)
     {
-        $contract = new stdclass();
-        $contract->status       = 'closed';
-        $contract->finishedBy   = $this->app->user->account;
-        $contract->finishedDate = helper::now();
-        $contract->editedBy     = $this->app->user->account;
-        $contract->editedDate   = helper::now();
+        $purchase = new stdclass();
+        $purchase->status       = 'closed';
+        $purchase->finishedBy   = $this->app->user->account;
+        $purchase->finishedDate = helper::now();
+        $purchase->editedBy     = $this->app->user->account;
+        $purchase->editedDate   = helper::now();
 
-        $this->dao->update(TABLE_CONTRACT)->data($contract, $skip = 'uid, comment')
+        $this->dao->update(TABLE_CONTRACT)->data($purchase, $skip = 'uid, comment')
             ->autoCheck()
-            ->where('id')->eq($contractID)
+            ->where('id')->eq($purchaseID)
             ->exec();
 
         return !dao::isError();
@@ -641,13 +614,13 @@ class contractModel extends model
     /**
      * Build operate menu.
      * 
-     * @param  object $contract 
+     * @param  object $purchase 
      * @param  string $class 
      * @param  string $type 
      * @access public
      * @return string
      */
-    public function buildOperateMenu($contract, $class = '', $type = 'browse')
+    public function buildOperateMenu($purchase, $class = '', $type = 'browse')
     {
         $menu  = '';
 
@@ -661,54 +634,54 @@ class contractModel extends model
 
         if($type == 'view') $menu .= "<div class='btn-group'>";
 
-        if($canCreateRecord) $menu .= html::a(helper::createLink('action', 'createRecord', "objectType=contract&objectID={$contract->id}&customer={$contract->customer}"), $this->lang->contract->record, "class='$class' data-toggle='modal' data-type='iframe'");
+        if($canCreateRecord) $menu .= html::a(helper::createLink('action', 'createRecord', "objectType=purchase&objectID={$purchase->id}&customer={$purchase->customer}"), $this->lang->purchase->record, "class='$class' data-toggle='modal' data-type='iframe'");
 
-        if($contract->return != 'done' and $contract->status == 'normal' and $canReceive)
+        if($purchase->return != 'done' and $purchase->status == 'normal' and $canReceive)
         {
-            $menu .= html::a(helper::createLink('cash.contract', 'receive',  "contract=$contract->id"), $this->lang->contract->return, "data-toggle='modal' class='$class'");
+            $menu .= html::a(helper::createLink('cash.purchase', 'receive',  "purchase=$purchase->id"), $this->lang->purchase->return, "data-toggle='modal' class='$class'");
         }
         else
         {
-            $menu .= "<a href='###' disabled='disabled' class='disabled  $class'>" . $this->lang->contract->return . '</a> ';
+            $menu .= "<a href='###' disabled='disabled' class='disabled  $class'>" . $this->lang->purchase->return . '</a> ';
         }
 
-        if($contract->delivery != 'done' and $contract->status == 'normal' and $canDelivery)
+        if($purchase->delivery != 'done' and $purchase->status == 'normal' and $canDelivery)
         {
-            $menu .= html::a(helper::createLink('cash.contract', 'delivery', "contract=$contract->id"), $this->lang->contract->delivery, "data-toggle='modal' class='$class'");
+            $menu .= html::a(helper::createLink('cash.purchase', 'delivery', "purchase=$purchase->id"), $this->lang->purchase->delivery, "data-toggle='modal' class='$class'");
         }
         else
         {
-            $menu .= "<a href='###' disabled='disabled' class='disabled $class'>" . $this->lang->contract->delivery . '</a> ';
+            $menu .= "<a href='###' disabled='disabled' class='disabled $class'>" . $this->lang->purchase->delivery . '</a> ';
         }
 
         if($type == 'view') $menu .= "</div><div class='btn-group'>";
 
-        if($contract->status == 'normal' and $contract->return == 'done' and $contract->delivery == 'done' and $canFinish)
+        if($purchase->status == 'normal' and $purchase->return == 'done' and $purchase->delivery == 'done' and $canFinish)
         {
-            $menu .= html::a(helper::createLink('cash.contract', 'finish', "contract=$contract->id"), $this->lang->finish, "data-toggle='modal' class='$class'");
+            $menu .= html::a(helper::createLink('cash.purchase', 'finish', "purchase=$purchase->id"), $this->lang->finish, "data-toggle='modal' class='$class'");
         }
         else
         {
             $menu .= "<a href='###' disabled='disabled' class='disabled $class'>" . $this->lang->finish . '</a> ';
         }
 
-        if($canEdit) $menu .= html::a(helper::createLink('cash.contract', 'edit', "contract=$contract->id"), $this->lang->edit, "class='$class'");
+        if($canEdit) $menu .= html::a(helper::createLink('cash.purchase', 'edit', "purchase=$purchase->id"), $this->lang->edit, "class='$class'");
 
         if($type == 'view')
         {
             $menu .= "</div><div class='btn-group'>";
-            if($contract->status == 'normal' and !($contract->return == 'done' and $contract->delivery == 'done') and $canCancel)
+            if($purchase->status == 'normal' and !($purchase->return == 'done' and $purchase->delivery == 'done') and $canCancel)
             {
-                $menu .= html::a(helper::createLink('cash.contract', 'cancel', "contract=$contract->id"), $this->lang->cancel, "data-toggle='modal' class='$class'");
+                $menu .= html::a(helper::createLink('cash.purchase', 'cancel', "purchase=$purchase->id"), $this->lang->cancel, "data-toggle='modal' class='$class'");
             }
             else
             {
                 $menu .= "<a href='###' disabled='disabled' class='disabled $class'>" . $this->lang->cancel . '</a> ';
             }
 
-            if($contract->status == 'canceled' or ($contract->status == 'normal' and !($contract->return == 'done' and $contract->delivery == 'done')) and $canDelete)
+            if($purchase->status == 'canceled' or ($purchase->status == 'normal' and !($purchase->return == 'done' and $purchase->delivery == 'done')) and $canDelete)
             {
-                $menu .= html::a(helper::createLink('cash.contract', 'delete', "contract=$contract->id"), $this->lang->delete, "class='deleter $class'");
+                $menu .= html::a(helper::createLink('cash.purchase', 'delete', "purchase=$purchase->id"), $this->lang->delete, "class='deleter $class'");
             }
             else
             {
@@ -720,18 +693,18 @@ class contractModel extends model
         {
             $menu .="<div class='dropdown'><a data-toggle='dropdown' href='javascript:;'>" . $this->lang->more . "<span class='caret'></span> </a><ul class='dropdown-menu pull-right'>";
 
-            if($contract->status == 'normal' and !($contract->return == 'done' and $contract->delivery == 'done') and $canCancel)
+            if($purchase->status == 'normal' and !($purchase->return == 'done' and $purchase->delivery == 'done') and $canCancel)
             {
-                $menu .= "<li>" . html::a(helper::createLink('cash.contract', 'cancel', "contract=$contract->id"), $this->lang->cancel, "data-toggle='modal' class='$class'") . "</li>";
+                $menu .= "<li>" . html::a(helper::createLink('cash.purchase', 'cancel', "purchase=$purchase->id"), $this->lang->cancel, "data-toggle='modal' class='$class'") . "</li>";
             }
             else
             {
                 $menu .= "<li><a href='###' disabled='disabled' class='disabled $class'>" . $this->lang->cancel . '</a></li> ';
             }
 
-            if($contract->status == 'canceled' or ($contract->status == 'normal' and !($contract->return == 'done' and $contract->delivery == 'done')) and $canDelete)
+            if($purchase->status == 'canceled' or ($purchase->status == 'normal' and !($purchase->return == 'done' and $purchase->delivery == 'done')) and $canDelete)
             {
-                $menu .= "<li>" . html::a(helper::createLink('cash.contract', 'delete', "contract=$contract->id"), $this->lang->delete, "class='reloadDeleter $class'") . "</li>";
+                $menu .= "<li>" . html::a(helper::createLink('cash.purchase', 'delete', "purchase=$purchase->id"), $this->lang->delete, "class='reloadDeleter $class'") . "</li>";
             }
             else
             {
@@ -748,30 +721,30 @@ class contractModel extends model
     /**
      * Count amount.
      * 
-     * @param  array  $contracts 
+     * @param  array  $purchases 
      * @access public
      * @return array
      */
-    public function countAmount($contracts)
+    public function countAmount($purchases)
     {
         $totalAmount  = array();
         $currencyList = $this->loadModel('common', 'sys')->getCurrencyList();
         $currencySign = $this->common->getCurrencySign();
         $totalReturn  = $this->dao->select('*')->from(TABLE_PLAN)->fetchGroup('contract');
 
-        foreach($contracts as $contract)
+        foreach($purchases as $purchase)
         {
-            if($contract->status == 'canceled') continue;
+            if($purchase->status == 'canceled') continue;
             foreach($currencyList as $key => $currency)
             {
-                if($contract->currency == $key)
+                if($purchase->currency == $key)
                 {
                     if(!isset($totalAmount['contract'][$key])) $totalAmount['contract'][$key] = 0;
                     if(!isset($totalAmount['return'][$key]))   $totalAmount['return'][$key] = 0;
 
-                    $totalAmount['contract'][$key] += $contract->amount;
+                    $totalAmount['contract'][$key] += $purchase->amount;
                     
-                    if(isset($totalReturn[$contract->id])) foreach($totalReturn[$contract->id] as $return) $totalAmount['return'][$key] += $return->amount;
+                    if(isset($totalReturn[$purchase->id])) foreach($totalReturn[$purchase->id] as $return) $totalAmount['return'][$key] += $return->amount;
                 }
             }
         }
