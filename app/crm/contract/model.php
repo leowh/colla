@@ -197,8 +197,9 @@ class contractModel extends model
             ->get();
 
         $contract = $this->loadModel('file')->processEditor($contract, $this->config->contract->editor->create['id']);
+	$customer = $this->loadModel('customer','crm')->getByID($contract->customer);
 
-        $contract->code = 'LZYIN-C' . strval( $contract->customer) . '-' . date("Ymdhi");
+        $contract->code = 'LZY-' . strval( $customer->code) . '-' . date("Ymdhi");
 
         $this->dao->insert(TABLE_CONTRACT)->data($contract, 'order,uid,files,labels,real')
             ->autoCheck()

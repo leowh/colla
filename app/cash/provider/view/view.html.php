@@ -53,8 +53,8 @@
           <td><?php echo zget($areas, $provider->area);?></td>
         </tr>
         <tr>
-          <th><?php echo $lang->provider->weibo;?></th>
-          <td><?php echo html::a("$provider->weibo", $provider->weibo, "target='_blank'");?></td>
+          <th><?php echo $lang->provider->code;?></th>
+          <td><?php echo html::a("$provider->code", $provider->code, "target='_blank'");?></td>
         </tr>
         <tr>
           <th><?php echo $lang->provider->weixin;?></th>

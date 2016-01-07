@@ -37,6 +37,12 @@
              </div>
            </td>
          </tr>
+
+	<tr>
+          <th><?php echo $lang->customer->code;?></th>
+          <td><?php echo html::input('code',$customer->code, "class='form-control'");?></td>
+        </tr>
+
          <tr>
            <th><?php echo $lang->customer->intension;?></th>
            <td><?php echo html::textarea('intension', $customer->intension, "class='form-control' rows=2");?></td>
@@ -85,8 +91,8 @@
            <td><?php echo html::select('area', $areaList,  $customer->area, "class='form-control chosen'");?></td>
          </tr>
          <tr>
-           <th><?php echo $lang->customer->weibo;?></th>
-           <td><?php echo html::input('weibo', $customer->weibo ? $customer->weibo : 'http://weibo.com/', "class='form-control'");?></td>
+           <th><?php echo $lang->customer->code;?></th>
+           <td><?php echo html::input('code', $customer->code ? $customer->code : 'http://code.com/', "class='form-control'");?></td>
          </tr>
          <tr>
            <th><?php echo $lang->customer->weixin;?></th>

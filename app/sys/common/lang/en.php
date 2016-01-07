@@ -179,7 +179,7 @@ $lang->company->phone     = 'Phone';
 $lang->company->email     = 'Email';
 $lang->company->fax       = 'Fax';
 $lang->company->qq        = 'QQ';
-$lang->company->weibo     = 'Weibo';
+$lang->company->code     = 'Weibo';
 $lang->company->weixin    = 'Weichat';
 $lang->company->wangwang  = 'Wangwang';
 

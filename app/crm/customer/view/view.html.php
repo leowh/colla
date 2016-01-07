@@ -85,8 +85,8 @@
             <td><?php if($customer->area) echo $areaList[$customer->area];?></td>
           </tr>
           <tr>
-            <th><?php echo $lang->customer->weibo;?></th>
-            <td><?php echo html::a("$customer->weibo", $customer->weibo, "target='_blank'");?></td>
+            <th><?php echo $lang->customer->code;?></th>
+            <td><?php echo html::a("$customer->code", $customer->code, "target='_blank'");?></td>
           </tr>
           <tr>
             <th><?php echo $lang->customer->weixin;?></th>

@@ -47,7 +47,7 @@
       <?php foreach($customers as $customer):?>
       <tr class='text-center' data-url='<?php echo $this->createLink('customer', 'view', "customerID=$customer->id"); ?>'>
         <td><?php echo $customer->id;?></td>
-        <td class='text-left'><?php echo $customer->name;?></td>
+        <td class='text-left'><?php echo $customer->name . "  |   " . $customer->code ?></td>
         <td><?php if(isset($users[$customer->assignedTo])) echo $users[$customer->assignedTo];?></td>
         <td><?php echo isset($lang->customer->levelNameList[$customer->level]) ? $lang->customer->levelNameList[$customer->level] : '';?></td>
         <td class='<?php echo "customer-{$customer->status}";?>'><?php if($customer->status) echo $lang->customer->statusList[$customer->status];?></td>

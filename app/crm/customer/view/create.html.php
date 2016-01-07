@@ -31,6 +31,10 @@
           </td><td></td>
         </tr>
         <tr>
+          <th><?php echo $lang->customer->code;?></th>
+          <td><?php echo html::input('code', '', "class='form-control'");?></td>
+        </tr>
+        <tr>
           <th><?php echo $lang->customer->contact;?></th>
           <td><?php echo html::input('contact', '', "class='form-control'");?></td>
         </tr>

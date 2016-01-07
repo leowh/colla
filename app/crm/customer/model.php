@@ -159,6 +159,7 @@ class customerModel extends model
                 ->add('assignedTo', $this->app->user->account)
                 ->add('createdDate', $now)
                 ->get();
+	    $customer->code = $this->post->code;
 
             /* check field before insert. */
             $this->dao->insert(TABLE_CUSTOMER)
@@ -238,9 +239,9 @@ class customerModel extends model
 
         /* Add http:// in head when that has not http:// or https://. */
         if(strpos($customer->site, '://') === false )  $customer->site  = 'http://' . $customer->site;
-        if(strpos($customer->weibo, 'http://weibo.com/') === false ) $customer->weibo = 'http://weibo.com/' . $customer->weibo;
+        if(strpos($customer->code, 'http://code.com/') === false ) $customer->code = 'http://code.com/' . $customer->code;
         if($customer->site == 'http://') $customer->site = '';
-        if($customer->weibo == 'http://weibo.com/') $customer->weibo = '';
+        if($customer->code == 'http://code.com/') $customer->code = '';
 
         $customer = $this->loadModel('file')->processEditor($customer, $this->config->customer->editor->edit['id']);
         $this->dao->update(TABLE_CUSTOMER)

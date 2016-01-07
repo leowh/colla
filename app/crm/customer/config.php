@@ -10,8 +10,8 @@
  * @link        http://www.ranzhico.com
  */
 $config->customer->require = new stdclass();
-$config->customer->require->create = 'contact';
-$config->customer->require->edit   = 'name';
+$config->customer->require->create = 'contact,code';
+$config->customer->require->edit   = 'name,code';
 
 $config->customer->editor = new stdclass();
 $config->customer->editor->create = array('id' => 'desc', 'tools' => 'simple');
@@ -54,6 +54,6 @@ $config->customer->search['params']['id']            = array('operator' => '=', 
 $config->customer->list = new stdclass();
 $config->customer->list->exportFields = '
   id, name, type, relation, size, industry, area,
-  status, level, intension, site, weibo, weixin, public,
+  status, level, intension, site, code, weixin, public,
   createdBy, createdDate, assignedBy, assignedDate, assignedTo,
   editedBy, editedDate, contactedBy, contactedDate, nextDate, desc';

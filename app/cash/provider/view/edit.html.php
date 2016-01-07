@@ -49,8 +49,8 @@
           <td><?php echo html::select('area', $areas,  $provider->area, "class='form-control chosen'");?></td><td></td>
         </tr>
         <tr>
-          <th><?php echo $lang->provider->weibo;?></th>
-          <td><?php echo html::input('weibo', $provider->weibo ? $provider->weibo : 'http://weibo.com/', "class='form-control'");?></td><td></td>
+          <th><?php echo $lang->provider->code;?></th>
+          <td><?php echo html::input('code', $provider->code ? $provider->code : 'http://code.com/', "class='form-control'");?></td><td></td>
         </tr>
         <tr>
           <th><?php echo $lang->provider->weixin;?></th>

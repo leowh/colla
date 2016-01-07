@@ -305,13 +305,13 @@ class contactModel extends model
             ->add('editedDate', $now)
             ->setDefault('birthday', '0000-00-00')
             ->setIF($this->post->avatar == '', 'avatar', $oldContact->avatar)
-            ->setIF($this->post->weibo == 'http://weibo.com/', 'weibo', '')
+            ->setIF($this->post->code == 'http://code.com/', 'code', '')
             ->setIF($this->post->site == 'http://', 'site', '')
             ->remove('files')
             ->get();
 
         if($contact->site and strpos($contact->site, '://') === false )  $contact->site  = 'http://' . $contact->site;
-        if($contact->weibo and strpos($contact->weibo, 'http://weibo.com/') === false ) $contact->weibo = 'http://weibo.com/' . $contact->weibo;
+        if($contact->code and strpos($contact->code, 'http://code.com/') === false ) $contact->code = 'http://code.com/' . $contact->code;
         $contact->email = str_replace(array(' ', '，'), ',', trim($contact->email));
 
         $this->dao->update(TABLE_CONTACT)
