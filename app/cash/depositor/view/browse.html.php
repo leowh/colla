@@ -39,11 +39,14 @@
             <h4 class='title'><?php echo $depositor->abbr;?></h4>
             <div class='subtitle'>
               <?php if($depositor->type != 'cash' && !empty($depositor->title) && $depositor->title != $depositor->abbr):?>
-              <span class='cell text-muted' title='<?php echo $lang->depositor->title;?>'><?php echo $depositor->title;?></span>
+              <span class='cell' title='<?php echo $lang->depositor->title;?>'><?php echo $depositor->title;?></span>
               <?php endif;?>
             </div>
           </div>
           <div class='card-caption row'>
+	    <?php echo "<dl class='dl-horizontal'><dt>{$lang->depositor->title} $lang->colon </dt><dd> $depositor->title </dd></dl>";?>
+	    <?php echo "<dl class='dl-horizontal'><dt>{$lang->depositor->account}  $lang->colon </dt><dd> $depositor->account</dd> </dl>";?>
+	    <?php echo "<dl class='dl-horizontal'><dt>{$lang->depositor->bankcode} $lang->colon </dt><dd> $depositor->bankcode </dd></dl>";?>
             <?php if($depositor->type != 'cash'):?>
             <?php if($depositor->type == 'bank') echo "<dl class='dl-horizontal'><dt>{$lang->depositor->bankProvider} {$lang->colon} </dt><dd>$depositor->provider </dd></dl>";?>
             <?php if($depositor->type == 'online') echo "<dl class='dl-horizontal'><dt>{$lang->depositor->serviceProvider} {$lang->colon} </dt><dd>{$lang->depositor->providerList[$depositor->provider]} </dd></dl>";?>

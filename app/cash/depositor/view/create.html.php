@@ -22,6 +22,18 @@
       <td><?php echo html::input('abbr', '', "class='form-control'");?></td>
     </tr>
     <tr>
+      <th><?php echo $lang->depositor->bankcode;?></th>
+      <td><?php echo html::input('bankcode', '', "class='form-control'");?></td>
+    </tr>
+    <tr>
+      <th><?php echo $lang->depositor->title;?></th>
+      <td><?php echo html::input('title', '', "class='form-control'");?></td>
+    </tr>
+    <tr>
+      <th><?php echo $lang->depositor->account;?></th>
+      <td><?php echo html::input('account', '', "class='form-control'");?></td>
+    </tr>
+    <tr>
       <th><?php echo $lang->depositor->tags;?></th>
       <td><?php echo html::input('tags', '', "class='form-control' placeholder='{$lang->depositor->placeholder->tags}'");?></td>
     </tr>
