@@ -42,8 +42,8 @@ $config->views = ',html,json,mhtml,';
 
 /* Supported languages. */
 $config->langs['zh-cn'] = '简体';
-//$config->langs['zh-tw'] = '繁体';
-//$config->langs['en']    = 'English';
+$config->langs['zh-tw'] = '繁体';
+$config->langs['en']    = 'English';
 
 /* Supported charsets. */
 $config->charsets['zh-cn']['utf-8'] = 'UTF-8';
