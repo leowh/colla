@@ -408,6 +408,8 @@ class contract extends control
             $this->loadModel('action')->create('customer', $contract->customer, 'finishContract', $this->post->comment, html::a($this->createLink('contract', 'view', "contractID=$contractID"), $contract->name));
 
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => 'reload'));
+	
+	//    $this->loadModel('trade','cash')->createReceive('in',$contractID);
         }
 
         $this->view->title      = $this->lang->finish;

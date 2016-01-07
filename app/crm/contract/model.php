@@ -528,8 +528,6 @@ class contractModel extends model
 
             if(!dao::isError() and $this->post->finish) $this->dao->update(TABLE_CUSTOMER)->set('status')->eq('payed')->where('id')->eq($contract->customer)->exec();
 
-            $ret = $this->loadModel('trade','cash')->createReceive('in',$contractID);
-
             return !dao::isError();
         }
 
@@ -688,7 +686,7 @@ class contractModel extends model
             ->where('id')->eq($contractID)
             ->exec();
 
-        return !dao::isError();
+	return !dao::isError();
     }
 
     /**
