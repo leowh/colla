@@ -10,7 +10,7 @@
  * @link        http://www.ranzhico.com
  */
 if(!isset($lang->order)) $lang->order = new stdclass();
-$lang->order->common         = '订单';
+$lang->order->common         = '商机';
 $lang->order->id             = '编号';
 $lang->order->name           = '名称';
 $lang->order->product        = '产品';
@@ -45,16 +45,16 @@ $lang->order->editedDate     = '最后修改日期';
 $lang->order->createCustomer = '新建';
 $lang->order->createProduct  = '新建';
 
-$lang->order->list          = '订单列表';
-$lang->order->browse        = '浏览订单';
-$lang->order->create        = '创建订单';
+$lang->order->list          = '商机列表';
+$lang->order->browse        = '浏览商机';
+$lang->order->create        = '创建商机';
 $lang->order->record        = '沟通';
-$lang->order->edit          = '编辑订单';
-$lang->order->delete        = '删除订单';
-$lang->order->view          = '订单详情';
-$lang->order->close         = '关闭订单';
+$lang->order->edit          = '编辑商机';
+$lang->order->delete        = '删除商机';
+$lang->order->view          = '商机详情';
+$lang->order->close         = '关闭商机';
 $lang->order->sign          = '签约';
-$lang->order->assign        = '订单指派';
+$lang->order->assign        = '商机指派';
 $lang->order->activate      = '激活';
 $lang->order->export        = '导出';
 
@@ -69,9 +69,9 @@ $lang->order->closedReasonList['postponed'] = '延期';
 
 $lang->order->titleLBL  = "%s购买%s (%s)";
 $lang->order->basicInfo = "基本信息";
-$lang->order->lifetime  = "订单的一生";
+$lang->order->lifetime  = "商机的一生";
 
-$lang->order->totalAmount   = '本页订单计划金额：%s，成交金额：%s；';
+$lang->order->totalAmount   = '本页商机计划金额：%s，成交金额：%s；';
 $lang->order->infoBuy       = "%s 购买 %s。";
 $lang->order->infoContract  = '签署合同：%s。';
 $lang->order->infoAmount    = '计划金额：%s，成交金额：%s。';

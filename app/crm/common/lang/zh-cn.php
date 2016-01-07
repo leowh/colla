@@ -14,7 +14,7 @@ $lang->app->name = 'CRM';
 
 $lang->menu->crm = new stdclass();
 $lang->menu->crm->dashboard = '首页|dashboard|index|';
-$lang->menu->crm->order     = '订单|order|browse|';
+$lang->menu->crm->order     = '商机|order|browse|';
 $lang->menu->crm->contract  = '合同|contract|browse|mode=unfinished';
 $lang->menu->crm->customer  = '客户|customer|browse|';
 $lang->menu->crm->contact   = '联系人|contact|browse|';
@@ -45,7 +45,7 @@ $lang->product->menu->offline    = '下线|product|browse|mode=offline';
 /* Menu of order module. */
 $lang->order = new stdclass();
 $lang->order->menu = new stdclass();
-$lang->order->menu->browse       = '所有订单|order|browse|mode=all';
+$lang->order->menu->browse       = '所有商机|order|browse|mode=all';
 $lang->order->menu->assignedTo   = '指派给我|order|browse|mode=assignedTo';
 $lang->order->menu->past         = '亟需联系|order|browse|mode=past';
 $lang->order->menu->today        = '今天联系|order|browse|mode=today';
