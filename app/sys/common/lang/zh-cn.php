@@ -35,9 +35,9 @@ $lang->apps->sys  = '通用';
 $lang->apps->team = '团队';
 
 /* Lang items for ranzhi. */
-$lang->ranzhi    = '然之协同';
-$lang->agreement = "已阅读并同意<a href='http://zpl.pub/page/zplv11.html' target='_blank'>《Z PUBLIC LICENSE授权协议1.2》</a>。<span class='text-danger'>未经许可，不得去除、隐藏或遮掩然之系统的任何标志及链接。</span>";
-$lang->poweredBy = "<a href='http://www.ranzhico.com/?v=%s' target='_blank'>{$lang->ranzhi} %s</a>";
+$lang->ranzhi    = '量子云';
+$lang->agreement = "";
+$lang->poweredBy = "";
 
 /* IE6 alert.  */
 $lang->IE6Alert = <<<EOT
@@ -60,7 +60,7 @@ $lang->themes['clear']   = '清晰';
 
 /* Global lang items. */
 $lang->home           = '首页';
-$lang->welcome        = "%s协同管理系统";
+$lang->welcome        = "%s系统";
 $lang->messages       = "<strong><i class='icon-comment-alt'></i> %s</strong>";
 $lang->todayIs        = '今天是%s，';
 $lang->today          = '今天';
